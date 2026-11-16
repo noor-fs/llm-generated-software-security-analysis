@@ -12,8 +12,8 @@ This is the master table for the report (Tables 5 and 6). Raw tool output is in 
 | pytest (own tests) | 3 / 3 passed | | | 10 / 10 (unittest) | Not comparable across versions |
 | pytest (shared HTTP suite) | 19 / 19 | | | | `tests/shared-http`, comparable across versions |
 | OWASP ZAP | 0 High, 2 Medium, 2 Low, 3 Info | | | 0 High, 0 Medium, 1 Low, 3 Info | Unauthenticated spider + active scan, ZAP 2.17.0, 17 Oct 2026 (details below) |
-| Burp Suite | _Kanita's results_ | | | Not used: 8 manual tests via ZAP Requester, all pass | `tests/burp/test-cases.md` |
-| Atheris | _Kanita's / Diana's results_ | | | _not run_ | |
+| Burp Suite | Proxy history only: wrong password, over-balance transfer and open redirect all rejected (`results/baseline/burp/`) | | | Not used: 8 manual tests via ZAP Requester, all pass | `tests/burp/test-cases.md` |
+| Atheris | ⚠ not valid yet (see section 7) | | | ⚠ not valid yet (see section 7) | |
 | **Confirmed vulnerabilities** | **4** | | | | |
 
 ### Bandit B608 in the baseline: false positive
@@ -96,3 +96,14 @@ From reading the code (still to be confirmed by the tests): it uses a random sec
 Its own pytest run gives **7/9**. Both failures are bugs in GPT-6's tests, not the app:
 - `test_transfer_success_repeat_and_authorization` checks that "Lunch" is not on `/transactions?q=Lunch`, but the search box echoes the query back.
 - `test_register_duplicate_and_new_user` reads `_csrf` from the session right after registration, which calls `session.clear()`.
+
+## 7. Atheris runs so far are not valid
+
+Kanita's `fuzz.py` (run on the security-aware version: 10,000 runs in 16 s) never actually tested the app:
+
+- `atheris.instrument_imports()` is called on its own instead of as `with atheris.instrument_imports():`, so nothing is instrumented. libFuzzer warns "no interesting inputs were found… Is the code instrumented for coverage?" and the corpus stays at 1 byte.
+- `WTF_CSRF_ENABLED = False` does nothing because none of the apps use Flask-WTF. Every POST still fails the app's own CSRF check (HTTP 400) before reaching any logic.
+- The transfer request isn't logged in and uses `recipient_account`, but the field is `recipient`. It could never reach the transfer code.
+- `ValueError`, `KeyError` and `TypeError` are swallowed, and no property (e.g. balance never negative) is checked.
+
+Re-run with `tests/fuzzing/fuzz_transfer.py` on every version, using the same time limit. It logs in, handles CSRF and checks three properties, and has been smoke-tested on baseline, security-aware and paid tier. In the report, the first attempt can be a short "lesson learned": a fuzzer that can't get past CSRF and login tests nothing.

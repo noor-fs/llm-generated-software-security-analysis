@@ -15,7 +15,7 @@ Result key: **V** = vulnerable (attack worked), **B** = blocked, **N/A** = featu
 | 7 | Replay | Resend a successful transfer unchanged, then with a different amount but the same `idempotency_key` | | | | |
 | 8 | Session after password change | Log in on two browsers, change the password in one, replay a request from the other | | | | |
 | 9 | Session forgery | Run `exploit/session-forgery/forge_session.py` | V | | | |
-| 10 | Open redirect | Log in via `/login?next=/\evil.com` and `/login?next=https://evil.com` | | | | |
+| 10 | Open redirect | Log in via `/login?next=/\evil.com` and `/login?next=https://evil.com` | B (https://evil.com) | | | |
 | 11 | Brute force | Send 50 wrong passwords for `alice` with Intruder (Community is throttled, that's fine) | | | | |
 | 12 | Security headers / cookies | Check responses for `Content-Security-Policy`, `X-Frame-Options`, and cookie `HttpOnly`/`SameSite` flags | | | | |
 
