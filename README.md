@@ -53,7 +53,7 @@ flask --app app seed-demo
 flask --app app run --host 127.0.0.1 --port 5001
 ```
 
-Demo logins: `alice`, `bob`, `charlie`, password `DemoPass123!`. Use port 5002 for the self-fixed version, 5003 for paid-tier and 5004 for security-aware, each with its own venv and database.
+Demo logins: `alice`, `bob`, `charlie`, password `DemoPass123!` (paid tier: `alex`, `jordan`, `taylor`; run it with `export FLASK_APP=run:app` then `flask init-db`, `flask seed-demo`, `flask run --port 5003`). Use port 5002 for the self-fixed version, 5003 for paid-tier and 5004 for security-aware, each with its own venv and database.
 
 ## Testing
 

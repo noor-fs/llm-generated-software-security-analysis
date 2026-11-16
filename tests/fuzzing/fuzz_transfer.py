@@ -26,12 +26,15 @@ if not APP_DIR:
     sys.exit("Usage: python fuzz_transfer.py <version-folder> [libFuzzer options]")
 
 DB_FILE = os.path.join(tempfile.mkdtemp(prefix="fuzz-"), "fuzz.sqlite3")
-os.environ["DEMOBANK_DB"] = DB_FILE
+os.environ["DEMOBANK_DB"] = DB_FILE          # baseline / security-aware
+os.environ["DEMOBANK_DATABASE"] = DB_FILE    # paid tier
 os.environ.setdefault("DEMOBANK_DEBUG", "0")
 sys.path.insert(0, APP_DIR)
 
+# Versions differ in layout: app.py (single file) or run.py + package (app factory).
+ENTRY = "app" if os.path.exists(os.path.join(APP_DIR, "app.py")) else "run"
 with atheris.instrument_imports():
-    import app as target  # the version's app.py
+    target = __import__(ENTRY)
 
 flask_app = target.app
 flask_app.config["TESTING"] = False  # keep real error handling (500s are what we look for)
@@ -46,16 +49,23 @@ def balances():
 START_TOTAL = sum(balances())
 client = flask_app.test_client()
 
+CSRF_RE = re.compile(r'name="(csrf_token|_csrf)" value="([^"]*)"')
+with sqlite3.connect(DB_FILE) as _db:
+    USER = _db.execute("SELECT username FROM users ORDER BY id LIMIT 1").fetchone()[0]  # alice / alex
+    RECIPIENTS = [r[0] for r in _db.execute(
+        "SELECT a.account_number FROM accounts a JOIN users u ON u.id=a.user_id WHERE u.username != ?", (USER,))]
+
+
 def login():
     page = client.get("/login").get_data(as_text=True)
-    token = re.search(r'name="csrf_token" value="([^"]*)"', page)
-    client.post("/login", data={"username": "alice", "password": "DemoPass123!",
-                                "csrf_token": token.group(1) if token else ""})
+    token = CSRF_RE.search(page)
+    form = {"username": USER, "identifier": USER, "password": "DemoPass123!"}  # field name differs per version
+    if token:
+        form[token.group(1)] = token.group(2)
+    client.post("/login", data=form)
+
 
 login()
-with sqlite3.connect(DB_FILE) as _db:
-    RECIPIENTS = [r[0] for r in _db.execute(
-        "SELECT a.account_number FROM accounts a JOIN users u ON u.id=a.user_id WHERE u.username != 'alice'")]
 
 
 def TestOneInput(data):
@@ -75,17 +85,17 @@ def TestOneInput(data):
         else fdp.ConsumeUnicodeNoSurrogates(16)
 
     page = client.get("/transfer").get_data(as_text=True)
-    if 'name="csrf_token"' not in page:  # session expired or rate limited: log in again
+    if not CSRF_RE.search(page) or 'name="idempotency_key"' not in page:  # logged out or rate limited
         login()
         page = client.get("/transfer").get_data(as_text=True)
-    csrf = re.search(r'name="csrf_token" value="([^"]*)"', page)
+    csrf = CSRF_RE.search(page)
     key = re.search(r'name="idempotency_key" value="([^"]*)"', page)
 
-    resp = client.post("/transfer", data={
-        "csrf_token": csrf.group(1) if csrf else "",
-        "idempotency_key": key.group(1) if key else "",
-        "recipient": recipient, "amount": amount, "description": description,
-    })
+    form = {"idempotency_key": key.group(1) if key else "",
+            "recipient": recipient, "amount": amount, "description": description}
+    if csrf:
+        form[csrf.group(1)] = csrf.group(2)
+    resp = client.post("/transfer", data=form)
 
     assert resp.status_code != 500, f"500 error for amount={amount!r} recipient={recipient!r}"
     current = balances()

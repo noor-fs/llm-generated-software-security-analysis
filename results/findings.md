@@ -72,3 +72,27 @@ Lines 228 and 336 build SQL with an f-string, but the only thing inserted is a l
 | Input to ChatGPT | Functional prompt only | Baseline code + security prompt |
 
 Shared-HTTP suite (`tests/shared-http`) not yet run on security-aware.
+
+## 6. Paid-tier version notes
+
+GPT-6 (medium) built a differently structured app from the same prompt:
+
+| | Baseline (free) | Paid tier (GPT-6) |
+|---|---|---|
+| Layout | single `app.py` | `run.py` + `demobank/` package (app factory) |
+| Run command | `flask --app app run` | `export FLASK_APP=run:app` then `flask run` |
+| DB env variable | `DEMOBANK_DB` | `DEMOBANK_DATABASE` |
+| Demo users | alice, bob, charlie | alex, jordan, taylor (same password) |
+| CSRF field | `csrf_token` | `_csrf` |
+| Login field | `username` | `identifier` |
+| Account page | `/account` | `/accounts` |
+| Own tests | pytest, 3 | pytest, 9 |
+| Extra file | – | `SECURITY.md` listing its own controls and limits |
+
+As a result, `tests/shared-http` (written for the baseline's routes and field names) **does not run unchanged** on the paid tier. Record this as a limitation rather than editing the suite.
+
+From reading the code (still to be confirmed by the tests): it uses a random secret key when none is set and runs with `debug=False`, so baseline issues #1 and #2 look absent. It has no CSP or anti-clickjacking headers and no login rate limiting. Its own `SECURITY.md` admits the last two.
+
+Its own pytest run gives **7/9**. Both failures are bugs in GPT-6's tests, not the app:
+- `test_transfer_success_repeat_and_authorization` checks that "Lunch" is not on `/transactions?q=Lunch`, but the search box echoes the query back.
+- `test_register_duplicate_and_new_user` reads `_csrf` from the session right after registration, which calls `session.clear()`.

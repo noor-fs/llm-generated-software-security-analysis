@@ -10,7 +10,7 @@ VERSION="${1:?Usage: scripts/run_static_scans.sh <baseline|self-fixed|paid-tier|
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/versions/$VERSION"
 OUT="$ROOT/results/$VERSION"
-[ -f "$SRC/app.py" ] || { echo "No app.py in $SRC"; exit 1; }
+[ -f "$SRC/app.py" ] || [ -f "$SRC/run.py" ] || { echo "No app.py or run.py in $SRC"; exit 1; }
 mkdir -p "$OUT"
 
 {
