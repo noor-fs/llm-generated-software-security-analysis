@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow"><span class="eyebrow-dot"></span> YOUR MONEY, YOUR MOMENT</span>
+    <h1>Banking that feels<br><span>like a fresh start.</span></h1>
+    <p class="hero-lead">A calmer way to manage your money. Explore your balance, move demo funds, and stay on top of every transaction — all in one place.</p>
+    <div class="hero-actions">
+      {% if current_user %}<a class="btn btn-primary" href="{{ url_for('dashboard') }}">Go to dashboard <span>→</span></a>{% else %}<a class="btn btn-primary" href="{{ url_for('register') }}">Get started <span>→</span></a><a class="btn btn-quiet" href="{{ url_for('login') }}">Sign in</a>{% endif %}
+    </div>
+    <div class="trust-row"><span><b>✓</b> Private demo environment</span><span><b>✓</b> No real money</span></div>
+  </div>
+  <div class="hero-art">
+    <img class="hero-illustration" src="{{ url_for('static', filename='img/hero.svg') }}" alt="Illustration of a digital bank card and abstract shapes">
+    <div class="float-card float-card-top"><span class="mini-icon">↗</span><div><strong>Simple transfers</strong><small>Move demo funds in seconds</small></div></div>
+    <div class="float-card float-card-bottom"><span class="float-check">✓</span><div><strong>You're in control</strong><small>Every move, clearly recorded</small></div></div>
+  </div>
+</section>
+<section class="feature-section">
+  <div class="section-heading"><span class="eyebrow">BUILT AROUND YOU</span><h2>Everything in one place.</h2><p>Everyday banking tools, designed to feel straightforward.</p></div>
+  <div class="feature-grid">
+    <article class="feature-card"><div class="feature-icon lavender">◫</div><h3>Know your balance</h3><p>See your demo account balance and account details at a glance.</p><a href="{{ url_for('account') if current_user else url_for('register') }}">Explore accounts <span>→</span></a></article>
+    <article class="feature-card"><div class="feature-icon mint">⇄</div><h3>Move money easily</h3><p>Send simulated transfers to other DemoBank users and track the outcome.</p><a href="{{ url_for('transfer') if current_user else url_for('register') }}">Make a transfer <span>→</span></a></article>
+    <article class="feature-card"><div class="feature-icon peach">◷</div><h3>Stay in the know</h3><p>Review incoming and outgoing transfers with a clear transaction history.</p><a href="{{ url_for('transactions') if current_user else url_for('register') }}">View activity <span>→</span></a></article>
+  </div>
+</section>
+<section class="bottom-cta"><div><span class="eyebrow">A DEMO WITH A PURPOSE</span><h2>Better software starts with better questions.</h2><p>DemoBank is part of an academic study into the security of AI-generated software.</p></div><a class="btn btn-light" href="{{ url_for('about') }}">Learn about the project <span>→</span></a></section>
+{% endblock %}

@@ -1,0 +1,53 @@
+Run started:2026-11-03 08:58:56.174947+00:00
+
+Test results:
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\app.py:354:30
+353	        marks = ",".join("?" for _ in account_ids)
+354	        txns = db.execute(f"""
+355	            SELECT t.*, sa.account_number AS sender_number, su.full_name AS sender_name,
+356	                   ra.account_number AS recipient_number, ru.full_name AS recipient_name,
+357	                   sa.user_id AS sender_user_id
+358	            FROM transfers t JOIN accounts sa ON sa.id=t.sender_account_id JOIN users su ON su.id=sa.user_id
+359	            JOIN accounts ra ON ra.id=t.recipient_account_id JOIN users ru ON ru.id=ra.user_id
+360	            WHERE t.sender_account_id IN ({marks}) OR t.recipient_account_id IN ({marks})
+361	            ORDER BY t.created_at DESC, t.id DESC LIMIT 5
+362	        """, tuple(account_ids + account_ids)).fetchall()
+363	    unread = db.execute("SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0", (user["id"],)).fetchone()[0]
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\app.py:482:18
+481	        marks = ",".join("?" for _ in ids)
+482	        sql = f"""SELECT t.*, sa.account_number AS sender_number, su.full_name AS sender_name,
+483	                  ra.account_number AS recipient_number, ru.full_name AS recipient_name, sa.user_id AS sender_user_id
+484	                  FROM transfers t JOIN accounts sa ON sa.id=t.sender_account_id JOIN users su ON su.id=sa.user_id
+485	                  JOIN accounts ra ON ra.id=t.recipient_account_id JOIN users ru ON ru.id=ra.user_id
+486	                  WHERE (t.sender_account_id IN ({marks}) OR t.recipient_account_id IN ({marks}))"""
+487	        params = ids + ids
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 533
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 0
+		Medium: 2
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 1
+		Medium: 1
+		High: 0
+Files skipped (0):
