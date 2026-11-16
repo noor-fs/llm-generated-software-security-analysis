@@ -1,0 +1,4 @@
+bandit_exit=1
+semgrep_exit=0
+pip_audit_exit=0
+pytest_exit=0

@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="auth-layout"><div class="auth-art"><img src="{{ url_for('static', filename='img/hero.svg') }}" alt=""><span class="eyebrow">WELCOME BACK</span><h2>Your money space,<br>all in one place.</h2><p>Sign in to view your demo balance and manage simulated transfers.</p></div>
+<div class="auth-panel"><span class="eyebrow">YOUR ACCOUNT</span><h1>Good to see you.</h1><p class="muted">Enter your details to sign in.</p>
+<form method="post" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Username<input name="username" autocomplete="username" required maxlength="32" autofocus></label><label>Password<input type="password" name="password" autocomplete="current-password" required maxlength="128"></label><button class="btn btn-primary btn-full" type="submit">Sign in <span>→</span></button></form>
+<p class="form-foot">New to DemoBank? <a href="{{ url_for('register') }}">Create an account</a></p><p class="tiny-note">Demo only · Never use a real banking password here.</p></div></section>
+{% endblock %}

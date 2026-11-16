@@ -1,0 +1,16 @@
+rules:
+  - id: demobank-explicit-debug
+    languages: [python]
+    severity: WARNING
+    message: Explicit debug=True must not be exposed. Review deployment configuration too.
+    pattern: $APP.run(..., debug=True, ...)
+  - id: demobank-unsafe-template-output
+    languages: [python]
+    severity: WARNING
+    message: Review untrusted data passed as template source.
+    pattern: render_template_string($SOURCE, ...)
+  - id: demobank-sql-fstring
+    languages: [python]
+    severity: WARNING
+    message: Review dynamic SQL construction; do not classify as SQL injection without tracing inputs.
+    pattern: $DB.execute(f"...", ...)

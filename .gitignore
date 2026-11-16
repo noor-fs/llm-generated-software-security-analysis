@@ -1,0 +1,31 @@
+# Virtual environments (one .venv is ~500 MB, never commit it)
+.venv/
+venv/
+env/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Runtime databases: recreate with `flask --app app init-db` and `seed-demo`
+instance/
+*.sqlite3
+*.db
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Secrets
+.env
+
+# Fuzzing artefacts (keep crash files you want as evidence by moving them into results/)
+crash-*
+leak-*
+timeout-*
+fuzz-*/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,10 @@
+nohup: ignoring input
+Found Java version 21.0.12.1
+Available memory: 3911 MB
+Using JVM args: -Xmx977m
+Accessing URL
+Using traditional spider
+Active scanning
+[                    ] 0% |[====                ] 20% /[======              ] 33% -[======              ] 33% \[======              ] 33% |[======              ] 33% /[======              ] 33% -[======              ] 33% \[======              ] 33% |[======              ] 33% /[======              ] 33% -[======              ] 33% \[======              ] 33% |[======              ] 33% /[============        ] 60% -[================    ] 83% \[==================  ] 90% |[=================== ] 98% /[=================== ] 98% -[====================] 100% 
+Attack complete
+Writing results to /tmp/zap-v1-5001.html

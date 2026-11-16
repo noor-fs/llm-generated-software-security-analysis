@@ -1,0 +1,97 @@
+{
+  "description": "SHA-256 hashes of the 23 supplied V1 files before/after layout reconstruction.",
+  "files": {
+    "README.md": {
+      "path": "README.md",
+      "sha256": "485590291de1ab77234b55c7bb85de7b201348bb630e44626f94ab18af8834a7"
+    },
+    "about.html": {
+      "path": "templates/about.html",
+      "sha256": "2ca98b61eabe364e2f80acd5cdd00f2f04418a2f5262472f322df843f669b7e5"
+    },
+    "account.html": {
+      "path": "templates/account.html",
+      "sha256": "89cd42858391830be53efb91b2686f6334df058df36070aacb26b1788db5bc17"
+    },
+    "app.py": {
+      "path": "app.py",
+      "sha256": "9255a05d120512fb2371179a75b8b5d1b3ecd3a901061e39e7ab8ab3a45487da"
+    },
+    "base.html": {
+      "path": "templates/base.html",
+      "sha256": "9c02970bf72fcaaebdbac562108d17e0ff1e6d78f795a2bb89b24dbf744ae30e"
+    },
+    "change_password.html": {
+      "path": "templates/change_password.html",
+      "sha256": "fc17ac43b66c09452750091d8f51d66f9484f7b432848b2e5580926a2d58f64c"
+    },
+    "dashboard.html": {
+      "path": "templates/dashboard.html",
+      "sha256": "873a2d6d08bc22b0ad99b50a6afd9d63722b7c000c31a98c8a458a21f2546ec4"
+    },
+    "error.html": {
+      "path": "templates/error.html",
+      "sha256": "3fee00b4cb0af890699246abdb69946ad953139b9da88222461a38f65be9e75f"
+    },
+    "hero.svg": {
+      "path": "static/img/hero.svg",
+      "sha256": "5f3e70460e175bdbaa06937c4f660ddadd7ff436aceee5afbe51788f01937047"
+    },
+    "index.html": {
+      "path": "templates/index.html",
+      "sha256": "226ffb34b2211eebf18be1ea9a15b0a3e66c436d453fd2b9a795f18423298834"
+    },
+    "login.html": {
+      "path": "templates/login.html",
+      "sha256": "5d91839396fb707474be573db3a0c8847af179ab9b2cbacc7b0344b2e6d4fa7c"
+    },
+    "logo.svg": {
+      "path": "static/img/logo.svg",
+      "sha256": "aabab2823f0cfa772d1ca18adfff736b947e0130caef0c409a2319928468044b"
+    },
+    "main.js": {
+      "path": "static/js/main.js",
+      "sha256": "a3be95c4d674c5c0765aba05f43b0bd6794c9fe0299013b659bc967f2d23ad7e"
+    },
+    "notifications.html": {
+      "path": "templates/notifications.html",
+      "sha256": "75ff70a28ea40efec909ce9bcaab9a8418bd9af9070424a99b0186fa5e4ede51"
+    },
+    "profile.html": {
+      "path": "templates/profile.html",
+      "sha256": "0fae4c1df7ae4bf8a6914c638914ddb993de01f0f91c29ff75c426955b2535e4"
+    },
+    "register.html": {
+      "path": "templates/register.html",
+      "sha256": "4bd5159abaa942e146c2da9d5e1a21f68a257f0574628f97575f737cbd5b5e75"
+    },
+    "requirements.txt": {
+      "path": "requirements.txt",
+      "sha256": "76571d5df62392d623f80fd01ffeaa70a7167623978e87569060c2f44208cebe"
+    },
+    "settings.html": {
+      "path": "templates/settings.html",
+      "sha256": "aae339e79c37d37b537b22402eb158528fb2570feccb115eee7aa4d422586d82"
+    },
+    "style.css": {
+      "path": "static/css/style.css",
+      "sha256": "833766e5bf8ba4b5c15ac75fe80201dfbf7cb5513ff8e514a8aadba8372fc06c"
+    },
+    "test_app.py": {
+      "path": "test_app.py",
+      "sha256": "20ff49ba6bfb9e15173c1ebcec61fa808291d74e4c7906608cb1a9e87a848224"
+    },
+    "transactions.html": {
+      "path": "templates/transactions.html",
+      "sha256": "2bb2189ec19d238dc744b420e35ec746d5ac3afe44cd34132af0ae659f960a42"
+    },
+    "transfer.html": {
+      "path": "templates/transfer.html",
+      "sha256": "21e87dc72db47a139d05f868fddc3d5b34da965feec11574a5faba01870a7055"
+    },
+    "transfer.svg": {
+      "path": "static/img/transfer.svg",
+      "sha256": "9ca810322d6b5b972e9282c8d5e5685022fd7cf2179ef1c86b3ee114f761750e"
+    }
+  }
+}
