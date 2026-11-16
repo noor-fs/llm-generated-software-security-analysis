@@ -1,90 +1,88 @@
 # Security Analysis of LLM-Generated Software
 
-Security analysis of LLM-generated software: a ChatGPT-built banking web app compared across model tiers, prompt quality and self-repair, tested with Semgrep, Bandit, pip-audit, pytest, OWASP ZAP, Burp Suite and Atheris.
+A ChatGPT-built banking web app (DemoBank) generated four ways and tested with the same seven security tools, to compare model tier, prompt quality and self-fixing.
 
 CMPS 380 Cybersecurity Fundamentals, Qatar University, Fall 2026.
 
-> **Warning:** this repository contains deliberately unhardened, AI-generated code and a working exploit. Run it only on your own machine or VM, with the fake demo data. Never deploy it.
+> **Warning:** this repository contains AI-generated code with known vulnerabilities and a working exploit. Run it only on your own machine or VM, with the fake demo data. Never deploy it.
 
 ## Research questions
 
-1. **Self-fix sufficiency:** How well can an LLM fix the security flaws in its own code?
-2. **Model tier:** Does a paid ChatGPT model write more secure code than the free model from the same prompt?
-3. **Prompt quality:** Does a security-aware prompt produce more secure code than a basic one?
+Full scope and definitions: [`docs/SCOPE.md`](docs/SCOPE.md).
+
+**Main question:** How secure is a web application written by ChatGPT, and how much do model tier, prompt quality and self-correction change that?
+
+- **RQ1, Model tier:** Given the same prompt, does the paid ChatGPT model produce a more secure application than the free model?
+- **RQ2, Prompt quality:** Using the free model, does adding specific security requirements to the prompt produce a more secure application than a prompt that leaves security to the model?
+- **RQ3, Self-fix effectiveness:** When the free model is given its own code and our test results, how many real vulnerabilities does it fix correctly? Does it recognise false alarms, does it break anything, and do its claims match what the tests show?
 
 ## Versions
 
-All four are versions of **DemoBank**, a Flask + SQLite banking app with fake users and balances.
+| Folder | Model | What ChatGPT was given | Made by | Answers | Status |
+|---|---|---|---|---|---|
+| [`versions/baseline`](versions/baseline) | Free, GPT-5.6 | Baseline prompt, new chat | Diana Al-Marri | Reference | Done |
+| [`versions/paid-tier`](versions/paid-tier) | Paid, GPT-6 (medium) | Same baseline prompt, new chat | Noor Al Huda Soueid | RQ1 | Done |
+| [`versions/security-aware`](versions/security-aware) | Free, GPT-5.6 | Baseline prompt + security section, new chat, no code | Khadija Alobeid | RQ2 | To generate |
+| [`versions/self-fixed`](versions/self-fixed) | Free, GPT-5.6 | Baseline code + baseline test results | Kanita Ansari, Hajra Ghani | RQ3 | Done |
 
-| Folder | Built by | Model | Prompt | Answers |
-|---|---|---|---|---|
-| [`versions/baseline`](versions/baseline) | Diana Al-Marri | ChatGPT free | Basic functional prompt | Reference for all |
-| [`versions/self-fixed`](versions/self-fixed) | _TBC_ | ChatGPT free | Baseline + our tool reports fed back | Q1 |
-| [`versions/paid-tier`](versions/paid-tier) | Noor Al Huda Soueid | ChatGPT paid (GPT-6, medium) | Same prompt as baseline | Q2 |
-| [`versions/security-aware`](versions/security-aware) | Khadija Alobeid | ChatGPT free | Baseline code + security-aware prompt | Q3 |
-
-The baseline must not be edited. `versions/baseline/V1_SHA256.json` holds the hash of every original file so this can be checked.
+Each folder has a `PROMPT.md` with the exact prompt and chat link. Generated code is committed exactly as ChatGPT produced it and is never edited by hand. `versions/baseline/V1_SHA256.json` holds the original hash of every baseline file.
 
 ## Repository layout
 
 ```
-versions/      the four generated apps (each has its own README and PROMPT.md)
+docs/          SCOPE.md (research questions, method, definitions) and the proposal
+versions/      the four generated apps, each with PROMPT.md
 tests/
-  shared-http/ 19 HTTP tests that run unchanged against any version
-  fuzzing/     Atheris harness for the /transfer endpoint
-  burp/        manual test cases, run the same way on every version
+  shared-http/ 19 HTTP tests for apps with the baseline's routes
+  fuzzing/     Atheris harness for the /transfer endpoint (works on every version)
+  burp/        the 12 Burp test cases, same on every version
 results/       raw tool output per version + findings.md (master table)
-exploit/       proof-of-concept exploits with step-by-step instructions
-scripts/       run_static_scans.sh: same static tools and rules on any version
+exploit/       session-forgery proof of concept
+scripts/       run_static_scans.sh: Semgrep, Bandit, pip-audit, pytest with the same settings
 config/        shared Semgrep rules
-docs/          proposal and project notes
 ```
 
-## Quick start
+## Running each version
 
-Requires Python 3.12 on Linux (we used Ubuntu in VirtualBox).
+Python 3.12 on Ubuntu. Give each version its own venv, database and port.
 
-```bash
-cd versions/baseline
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-flask --app app init-db
-flask --app app seed-demo
-flask --app app run --host 127.0.0.1 --port 5001
-```
+| Version | Port | Commands (inside the version folder) |
+|---|---|---|
+| Baseline | 5001 | `flask --app app init-db`, `flask --app app seed-demo`, `flask --app app run --port 5001` |
+| Paid tier | 5003 | `export FLASK_APP=run:app`, `flask init-db`, `flask seed-demo`, `flask run --port 5003` |
+| Security-aware | 5004 | see its README once generated |
+| Self-fixed | 5002 | `flask --app app init-db`, `flask --app app seed-demo`, `python run_local.py --host 127.0.0.1 --port 5002` |
 
-Demo logins: `alice`, `bob`, `charlie`, password `DemoPass123!` (paid tier: `alex`, `jordan`, `taylor`; run it with `export FLASK_APP=run:app` then `flask init-db`, `flask seed-demo`, `flask run --port 5003`). Use port 5002 for the self-fixed version, 5003 for paid-tier and 5004 for security-aware, each with its own venv and database.
+Start with `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`. Demo logins: `alice` / `bob` / `charlie` (paid tier: `alex` / `jordan` / `taylor`), password `DemoPass123!`.
+
+Start each version the way its own README says. For example, the self-fixed version's server-header fix only works when started with `run_local.py`.
 
 ## Testing
 
-| # | Tool | Type | How to run |
-|---|---|---|---|
-| 1 | Semgrep | Static analysis | `scripts/run_static_scans.sh <version>` |
-| 2 | Bandit | Static analysis | same script |
-| 3 | pip-audit | Dependency check | same script |
-| 4 | pytest | Functional tests | same script (uses each version's own tests) |
-| 5 | OWASP ZAP | Dynamic scan | see [`results/README.md`](results/README.md) |
-| 6 | Burp Suite Community | Manual pen testing | [`tests/burp/test-cases.md`](tests/burp/test-cases.md) |
-| 7 | Atheris | Coverage-guided fuzzing | [`tests/fuzzing/`](tests/fuzzing) |
+| Tool | What it checks | How to run |
+|---|---|---|
+| Semgrep | Insecure code patterns | `scripts/run_static_scans.sh <version>` |
+| Bandit | Common Python security mistakes | same script |
+| pip-audit | Known vulnerabilities in `requirements.txt` | same script |
+| pytest | Features still work | same script; plus `tests/shared-http` where routes match |
+| OWASP ZAP | Automated attack on the running site | quick scan, see [`results/README.md`](results/README.md) |
+| Burp Suite | The same 12 attack cases | [`tests/burp/test-cases.md`](tests/burp/test-cases.md) |
+| Atheris | Random input to transfers, 30 min | [`tests/fuzzing/`](tests/fuzzing) |
 
-Use the same tool versions, rules and time limits on every version. Results go in `results/<version>/` and are summarised in [`results/findings.md`](results/findings.md).
-
-## Known gaps
-
-- The baseline has no profile picture upload or admin panel, although the proposal listed both. The group agreed to leave them out.
-- The versions were tested on different setups (OS, Semgrep rules, ZAP mode). See section 5 of `results/findings.md`. To be aligned before the final comparison.
-- Diana's first V2 was built with a security-aware prompt on the paid model, which changes two things at once, so it was scrapped and is not in this repo.
+All four versions are tested on the same machine with the same settings. Results go in `results/<version>/` and are summarised in [`results/findings.md`](results/findings.md).
 
 ## Proof of concept
 
-[`exploit/session-forgery`](exploit/session-forgery): the baseline signs session cookies with a hard-coded fallback secret key. Anyone can forge a cookie for any user and transfer their money without a password. Neither Bandit nor Semgrep flagged it.
+[`exploit/session-forgery`](exploit/session-forgery): the baseline signs session cookies with a hard-coded fallback secret key. Anyone can forge a cookie for any user and transfer their money without a password. Bandit and Semgrep both missed it. It fails against the self-fixed version.
+
+## Known limitations
+
+- One generation per version; ChatGPT can answer differently each time. Models change over time, so results reflect November 2026.
+- No profile-picture upload or admin panel, although the proposal listed both.
+- The paid model built a differently structured app (package layout, different routes and field names), so `tests/shared-http` does not run on it unchanged.
+- ZAP's quick scan only reaches pages available without logging in.
+- For the self-fix, ChatGPT was also shown our proposal, so it knew its fixes would be re-tested.
 
 ## Team
 
-| Member | Role |
-|---|---|
-| Diana Al-Marri | Baseline version; ZAP, Semgrep, Bandit, pip-audit, Atheris on baseline |
-| Noor Al Huda Soueid | Paid-tier version and its tests |
-| Khadija Alobeid | Security-aware version |
-| Kanita Ansari | Burp Suite and Atheris testing on baseline; compiling the report |
-| Hajra Ghani | _role_ |
+Diana Al-Marri, Noor Al Huda Soueid, Khadija Alobeid, Kanita Ansari, Hajra Ghani.

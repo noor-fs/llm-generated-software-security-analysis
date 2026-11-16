@@ -1,0 +1,9 @@
+V2 status at package creation:
+- Python syntax compilation: passed.
+- pytest: 8 passed.
+- Bandit: NOT RUN in this build environment (not installed).
+- Semgrep: NOT RUN in this build environment (not installed).
+- pip-audit: NOT RUN in this build environment (not installed).
+- OWASP ZAP: NOT RUN in this build environment.
+- Burp Community: NOT RUN in this build environment.
+Retest V2 using the same versions/configuration and authenticated coverage used for V1. NOT RUN is not a clean result.

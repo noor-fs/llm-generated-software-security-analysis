@@ -1,6 +1,6 @@
 # Paid tier: how it's made
 
-**Question it answers (Q2):** does a paid ChatGPT model write more secure code than the free one from the same prompt?
+**Question it answers (RQ1):** given the same prompt, does the paid ChatGPT model produce a more secure application than the free model (GPT-5.6)?
 
 **Model:** ChatGPT paid, GPT-6, medium reasoning
 **Compared with:** `versions/baseline` (Diana, ChatGPT free)

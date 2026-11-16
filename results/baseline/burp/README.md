@@ -10,6 +10,6 @@
 | Normal transfer | `POST /transfer`, `amount=100` | 302 → `/transactions` (succeeded) |
 | Browsing | dashboard, transactions, notifications | 200 |
 
-A second Kanita export (31 Oct, 14 requests, same port) also tried an **open redirect**: `POST /login?next=https://evil.com` → 302 to `/dashboard`, so it was **blocked**.
+A second export from 31 Oct (14 requests, also on port 5001) was run against the **self-fixed** version, not the baseline: every response carries the self-fixed version's Content-Security-Policy header, and the baseline sends none. It's now in `results/self-fixed/burp/`.
 
 Most cases in `tests/burp/test-cases.md` (CSRF removal, SQLi/XSS payloads, negative amounts, IDOR, replay, brute force) are **not** in these exports yet.

@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.0, pytest-9.2.0, pluggy-1.7.0 -- /Users/kanitaansari/Downloads/DemoBank_V1_V2_Comparison/DemoBank_V2/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kanitaansari/Downloads/DemoBank_V1_V2_Comparison/DemoBank_V2
+plugins: cov-7.1.0, platformdirs-4.14.0, anyio-4.15.1
+collecting ... collected 8 items
+
+test_app.py::DemoBankSecurityTests::test_csrf_required_for_post PASSED   [ 12%]
+test_app.py::DemoBankSecurityTests::test_negative_transfer_is_rejected_without_balance_change PASSED [ 25%]
+test_app.py::DemoBankSecurityTests::test_profile_requires_authentication PASSED [ 37%]
+test_app.py::DemoBankSecurityTests::test_public_pages_and_protected_redirect PASSED [ 50%]
+test_app.py::DemoBankSecurityTests::test_register_and_login PASSED       [ 62%]
+test_app.py::DemoBankSecurityTests::test_security_headers_present PASSED [ 75%]
+test_app.py::DemoBankSecurityTests::test_transaction_history_is_user_scoped PASSED [ 87%]
+test_app.py::DemoBankSecurityTests::test_transfer_updates_both_balances_and_is_idempotent PASSED [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.13.0-final-0 _______________
+
+Name           Stmts   Miss  Cover
+----------------------------------
+app.py           358    119    67%
+run_local.py      15     15     0%
+test_app.py       82      1    99%
+----------------------------------
+TOTAL            455    135    70%
+============================== 8 passed in 2.50s ===============================

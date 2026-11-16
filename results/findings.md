@@ -1,109 +1,92 @@
 # Findings
 
-This is the master table for the report (Tables 5 and 6). Raw tool output is in each version's folder.
+This is the master table for the report. Raw tool output is in each version's folder. Research questions are defined in [`docs/SCOPE.md`](../docs/SCOPE.md).
+
+> **Status:** the numbers below come from earlier runs on different machines and settings (see section 5). The final comparison re-runs every tool on all four versions on the same Ubuntu VM with the same settings.
 
 ## 1. Tool results by version
 
-| Tool | Baseline | Self-fixed | Paid tier | Sec-aware | Notes |
-|---|---|---|---|---|---|
-| Semgrep | 1 (3 custom rules) | | | 1 (registry rules, false positive) | ⚠ The run in Diana's package used only the 3 custom rules in `config/semgrep-custom.yml` and logged 0 errors. Diana did a separate run that showed errors (in her video). Get that output, then re-run all versions with `scripts/run_static_scans.sh` (adds p/python, p/flask, p/owasp-top-ten) |
-| Bandit | 2 (B608, medium) | | | 2 (B608, false positives) | Baseline: both are false positives (see below) |
-| pip-audit | 0 vulnerable / 7 packages | | | 0 / 7 | Flask 3.1.3, Werkzeug 3.1.9, Jinja2 3.1.6 |
-| pytest (own tests) | 3 / 3 passed | | | 10 / 10 (unittest) | Not comparable across versions |
-| pytest (shared HTTP suite) | 19 / 19 | | | | `tests/shared-http`, comparable across versions |
-| OWASP ZAP | 0 High, 2 Medium, 2 Low, 3 Info | | | 0 High, 0 Medium, 1 Low, 3 Info | Unauthenticated spider + active scan, ZAP 2.17.0, 17 Oct 2026 (details below) |
-| Burp Suite | Proxy history only: wrong password, over-balance transfer and open redirect all rejected (`results/baseline/burp/`) | | | Not used: 8 manual tests via ZAP Requester, all pass | `tests/burp/test-cases.md` |
-| Atheris | ⚠ not valid yet (see section 7) | | | ⚠ not valid yet (see section 7) | |
-| **Confirmed vulnerabilities** | **4** | | | | |
+| Tool | Baseline | Paid tier | Security-aware | Self-fixed |
+|---|---|---|---|---|
+| Semgrep | 1 (3 custom rules only) | | _to generate_ | 2 (registry rules, both false positives) |
+| Bandit | 2 (B608, false positives) | | | 0 |
+| pip-audit (`requirements.txt`) | 0 vulnerable / 7 packages | | | 0 / 7 |
+| pytest (own tests) | 3 / 3 | 7 / 9 (2 failures are bugs in GPT-6's tests) | | 8 / 8 |
+| pytest (shared HTTP suite) | 19 / 19 | can't run unchanged (different routes) | | not run yet |
+| OWASP ZAP | 0 High, 2 Medium, 2 Low, 3 Info | | | 0 High, 0 Medium, 1 Low, 3 Info |
+| Burp Suite | Proxy history (see section 4) | | | Proxy history (see section 4) |
+| Atheris | ⚠ not valid yet (section 6) | | | ⚠ not valid yet (section 6) |
+| **Confirmed vulnerabilities** | **4** | | | **0 of the baseline's 4** |
 
-### Bandit B608 in the baseline: false positive
+### Notes on individual results
 
-Lines 228 and 336 build SQL with an f-string, but the only thing inserted is a list of `?` placeholders (`",".join("?" for _ in ids)`). The values are still bound parameters, so this is not SQL injection. Record it as a false positive. It's a good example of why tool counts and confirmed vulnerabilities are counted separately.
-
-### OWASP ZAP on the baseline (`results/baseline/zap/`)
-
-| Alert | Risk | Real? |
-|---|---|---|
-| Content Security Policy (CSP) header not set | Medium | Yes: no defence-in-depth against XSS |
-| Missing anti-clickjacking header (X-Frame-Options / frame-ancestors) | Medium | Yes: the transfer page can be framed by another site |
-| Server leaks version (`Werkzeug/3.1.9 Python/3.12.3`) | Low | Yes, minor. Also shows it's running on the Flask development server |
-| X-Content-Type-Options header missing | Low | Yes, minor |
-| Authentication request identified | Info | Not a vulnerability |
-| Session management response identified | Info | Not a vulnerability |
-| User-controllable HTML attribute (potential XSS) | Info | False positive: the "user input" is the CSRF token being written back into its own hidden field |
-
-**Coverage limit:** the scan was unauthenticated, so it only reached the 12 public endpoints (`/`, `/about`, `/login`, `/register`, static files). The dashboard, transfer, transactions and profile pages were not scanned. ZAP finding no SQL injection or XSS says nothing about those pages. State this in the report, or re-run with an authenticated context.
+- **Baseline Bandit B608** (lines 228, 336): the f-string only inserts `?` placeholders (`",".join("?" for _ in ids)`). The values are still bound parameters, so these are false positives.
+- **Self-fixed Semgrep `open-redirect`** (line 239): `next` is only followed if it starts with `/` and not `//`, so external URLs are rejected. The Burp test with `next=https://evil.com` was blocked. Likely a false positive.
+- **Self-fixed Semgrep `avoid_hardcoded_config_TESTING`**: an audit-style rule about a config setting, not a vulnerability.
+- **Self-fixed pip-audit:** Kanita and Hajra's `pip_audit.json` reports 17 vulnerabilities, but it scanned all 92 packages in their environment. Re-run against `requirements.txt` (`pip-audit-requirements.json`, 16 Nov): 0 vulnerabilities. Always audit `requirements.txt`.
+- **Paid tier pytest:** `test_transfer_success_repeat_and_authorization` checks that "Lunch" is not on `/transactions?q=Lunch`, but the search box echoes the query back. `test_register_duplicate_and_new_user` reads `_csrf` from the session right after registration calls `session.clear()`.
 
 ## 2. Confirmed vulnerabilities
 
-"Confirmed" means we reproduced it or traced it in the code with a clear impact.
+"Confirmed" means we exploited it, or traced it in the code with a clear impact.
 
-| # | Vulnerability | CWE | OWASP 2025 | Found by | Base | Fixed | Paid | Sec |
+| # | Vulnerability | CWE | OWASP 2025 | Found by | Base | Paid | Sec | Fixed |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Hard-coded fallback `SECRET_KEY` allows session forgery and account takeover | CWE-321 / CWE-798 | A07, A02 | Manual review + PoC (missed by Bandit and Semgrep) | ✓ | | | ✗ (code: random key; PoC not yet run) |
-| 2 | Debug mode on by default when started with `python app.py` (`DEMOBANK_DEBUG` defaults to `"1"`, line 474) | CWE-489 / CWE-215 | A02 | Manual review (missed by Bandit B201, which only matches literal `debug=True`) | ✓ | | | ✗ (`debug=False`) |
-| 3 | No anti-clickjacking protection | CWE-1021 | A02 | ZAP | ✓ | | | ✗ (no ZAP alert) |
-| 4 | No Content Security Policy | CWE-693 | A02 | ZAP | ✓ | | | ✗ (no ZAP alert) |
-| 5 | | | | | | | | |
+| 1 | Hard-coded fallback `SECRET_KEY` allows session forgery and account takeover | CWE-321 / CWE-798 | A07, A02 | Manual review + PoC (missed by Bandit and Semgrep) | ✓ | | | ✗ |
+| 2 | Debug mode on by default when started with `python app.py` | CWE-489 / CWE-215 | A02 | Manual review (missed by Bandit B201, which only matches literal `debug=True`) | ✓ | | | ✗ |
+| 3 | No anti-clickjacking protection | CWE-1021 | A02 | ZAP | ✓ | | | ✗ |
+| 4 | No Content Security Policy | CWE-693 | A02 | ZAP | ✓ | | | ✗ |
 
-#1 was tested end to end on 16 Nov 2026 (see `exploit/session-forgery/`). #2 is from the code only. Its impact is limited because the Werkzeug debugger console is PIN-protected, but stack traces with source code would show to users. You could count #3 and #4 as one "missing security headers" item; just decide once and use the same rule for every version.
+- **#1:** exploited end to end on the baseline (16 Nov 2026). The same exploit failed against the self-fixed version (16 Nov 2026), which uses a random key when none is set. See `exploit/session-forgery/`.
+- **#2:** baseline line 474: `DEMOBANK_DEBUG` defaults to `"1"`. Self-fixed defaults to `"0"`.
+- **#3, #4:** the self-fixed version sends `Content-Security-Policy` (including `frame-ancestors 'none'`) and `X-Frame-Options: DENY`. ZAP no longer reports them.
+- You could count #3 and #4 as one "missing security headers" item. Decide once and use the same rule for every version.
 
-## 3. Still to verify with Burp
+## 3. RQ3: self-fix claims vs. re-test
 
-- No login rate limiting (Burp case 11)
-- Sessions survive a password change in another browser (Burp case 8)
+ChatGPT's own claims are in `versions/self-fixed/docs/SECURITY_REMEDIATION.md`.
 
-## 4. Security-aware version notes (`results/security-aware/`)
+| Finding given to ChatGPT | Real? | ChatGPT's verdict | Fixed? | Notes |
+|---|---|---|---|---|
+| Bandit B608 ×2 | False positive | Said these alone don't prove SQL injection; rewrote the queries anyway | Removed | Bandit now 0 |
+| Semgrep custom warning (same line) | False positive | Same as above | Removed | |
+| ZAP: missing CSP | Real | Real | ✓ | ZAP no longer reports it |
+| ZAP: missing anti-clickjacking | Real | Real | ✓ | ZAP no longer reports it |
+| ZAP: X-Content-Type-Options | Real (minor) | Real | ✓ | ZAP no longer reports it |
+| ZAP: server version leak | Real (minor) | Real, claims fixed | **Partly** | Fixed only when started with `run_local.py` (header becomes `Server: DemoBank`). With `flask run`, which is how ZAP scanned it, it still sends `Werkzeug/3.1.9 Python/…` |
+| ZAP: potential XSS (info) | False positive | Said it's not a confirmed XSS | n/a | Correct call |
+| Hard-coded secret key (not reported by any tool) | Real | Changed it without a tool reporting it | ✓ | Forgery exploit fails |
+| Debug on by default (not reported by any tool) | Real | Changed it without a tool reporting it | ✓ | Defaults to off |
 
-- **Semgrep** `nan-injection` at line 127: false positive. `bool()` wraps a true/false expression, not user input.
-- **Bandit** B608 at lines 354 and 482: same `?`-placeholder pattern as the baseline, so false positives.
-- **ZAP**: there's a passive report and an active report. Both are unauthenticated, ZAP 2.17.0 desktop. The baseline's CSP and anti-clickjacking alerts are gone. The server version leak remains.
+To add after the final re-test: anything the fix broke (shared HTTP suite, Burp cases), and any new issues.
 
-## 5. Inconsistencies between versions (sort out before the final comparison)
+## 4. Burp Suite
 
-| Item | Baseline | Security-aware |
+| Export | Version (how we know) | What it covers |
 |---|---|---|
-| OS | Ubuntu VM | Windows |
-| Semgrep rules | 3 custom rules | Semgrep registry rules |
-| Functional tests | pytest, 3 own tests | unittest, 10 own tests |
-| ZAP | CLI quick scan | Desktop passive + active scan |
-| Burp | Kanita | Not used (ZAP Requester instead) |
-| Atheris | Kanita / Diana | Not run |
-| Input to ChatGPT | Functional prompt only | Baseline code + security prompt |
+| `results/baseline/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline: no response has a CSP header | Wrong password rejected; transfer above balance rejected; normal transfer works |
+| `results/self-fixed/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed: all 14 responses carry the new CSP header | Login, transfer works; open redirect to `https://evil.com` blocked |
 
-Shared-HTTP suite (`tests/shared-http`) not yet run on security-aware.
+Both are proxy histories, not attack runs. Most cases in `tests/burp/test-cases.md` still need to be run on every version.
 
-## 6. Paid-tier version notes
+## 5. Why the final runs must be redone on one setup
 
-GPT-6 (medium) built a differently structured app from the same prompt:
+| Item | Baseline (Diana) | Self-fixed (Kanita & Hajra) | Paid tier (Noor) |
+|---|---|---|---|
+| Semgrep rules | 3 custom rules | Semgrep registry rules | not run yet |
+| pip-audit target | `requirements.txt` | whole environment (92 packages) | not run yet |
+| ZAP mode | CLI quick scan | ZAP desktop | not run yet |
+| How the app was started | `flask run` | `flask run` (not `run_local.py`) | not run yet |
 
-| | Baseline (free) | Paid tier (GPT-6) |
-|---|---|---|
-| Layout | single `app.py` | `run.py` + `demobank/` package (app factory) |
-| Run command | `flask --app app run` | `export FLASK_APP=run:app` then `flask run` |
-| DB env variable | `DEMOBANK_DB` | `DEMOBANK_DATABASE` |
-| Demo users | alice, bob, charlie | alex, jordan, taylor (same password) |
-| CSRF field | `csrf_token` | `_csrf` |
-| Login field | `username` | `identifier` |
-| Account page | `/account` | `/accounts` |
-| Own tests | pytest, 3 | pytest, 9 |
-| Extra file | – | `SECURITY.md` listing its own controls and limits |
+For the final runs, use `scripts/run_static_scans.sh`, the ZAP command in `results/README.md`, and the fuzzer in `tests/fuzzing/` on all four versions.
 
-As a result, `tests/shared-http` (written for the baseline's routes and field names) **does not run unchanged** on the paid tier. Record this as a limitation rather than editing the suite.
+## 6. Atheris runs so far are not valid
 
-From reading the code (still to be confirmed by the tests): it uses a random secret key when none is set and runs with `debug=False`, so baseline issues #1 and #2 look absent. It has no CSP or anti-clickjacking headers and no login rate limiting. Its own `SECURITY.md` admits the last two.
-
-Its own pytest run gives **7/9**. Both failures are bugs in GPT-6's tests, not the app:
-- `test_transfer_success_repeat_and_authorization` checks that "Lunch" is not on `/transactions?q=Lunch`, but the search box echoes the query back.
-- `test_register_duplicate_and_new_user` reads `_csrf` from the session right after registration, which calls `session.clear()`.
-
-## 7. Atheris runs so far are not valid
-
-Kanita's `fuzz.py` (run on the security-aware version: 10,000 runs in 16 s) never actually tested the app:
+Kanita's first fuzzer (`tests/fuzzing/first-attempt/`) never actually tested the app:
 
 - `atheris.instrument_imports()` is called on its own instead of as `with atheris.instrument_imports():`, so nothing is instrumented. libFuzzer warns "no interesting inputs were found… Is the code instrumented for coverage?" and the corpus stays at 1 byte.
-- `WTF_CSRF_ENABLED = False` does nothing because none of the apps use Flask-WTF. Every POST still fails the app's own CSRF check (HTTP 400) before reaching any logic.
-- The transfer request isn't logged in and uses `recipient_account`, but the field is `recipient`. It could never reach the transfer code.
-- `ValueError`, `KeyError` and `TypeError` are swallowed, and no property (e.g. balance never negative) is checked.
+- `WTF_CSRF_ENABLED = False` does nothing because none of the apps use Flask-WTF. Every POST still fails the app's CSRF check before reaching any logic.
+- The transfer request isn't logged in and uses `recipient_account`, but the field is `recipient`.
+- `ValueError`, `KeyError` and `TypeError` are swallowed, and no property is checked.
 
-Re-run with `tests/fuzzing/fuzz_transfer.py` on every version, using the same time limit. It logs in, handles CSRF and checks three properties, and has been smoke-tested on baseline, security-aware and paid tier. In the report, the first attempt can be a short "lesson learned": a fuzzer that can't get past CSRF and login tests nothing.
+Re-run with `tests/fuzzing/fuzz_transfer.py` on every version, using the same time limit. In the report this can be a short "lesson learned": a fuzzer that can't get past CSRF and login tests nothing.

@@ -1,0 +1,55 @@
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 35 files tracked by git with 225 Code rules:
+                                                                                                                        
+  Language      Rules   Files          Origin      Rules                                                                
+ ─────────────────────────────        ───────────────────                                                               
+  <multilang>       9      24          Community     225                                                                
+  python           77       3                                                                                           
+  json              1       2                                                                                           
+  js               20       1                                                                                           
+                                                                                                                        
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 2 (2 blocking)
+ • Rules run: 107
+ • Targets scanned: 35
+ • Parsed lines: ~100.0%
+ • Scan skipped: 
+   ◦ Files matching .semgrepignore patterns: 6
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 107 rules on 35 files: 2 findings.
+                   
+                   
+┌─────────────────┐
+│ 2 Code Findings │
+└─────────────────┘
+          
+    app.py
+   ❯❯❱ python.flask.security.open-redirect.open-redirect
+          ❰❰ Blocking ❱❱
+          Data from request is passed to redirect(). This is an open redirect and could be exploited. Consider
+          using 'url_for()' to generate links to known locations. If you must use a URL to unknown pages,     
+          consider using 'urlparse()' or similar and checking if the 'netloc' property is the same as your    
+          site's host name. See the references for more information.                                          
+          Details: https://sg.run/kXe2                                                                        
+                                                                                                              
+          239┆ destination = request.args.get("next", "")
+          240┆ if destination.startswith("/") and not destination.startswith("//"):
+          241┆     return redirect(destination)
+               
+    test_app.py
+    ❯❱ python.flask.security.audit.hardcoded-config.avoid_hardcoded_config_TESTING
+          ❰❰ Blocking ❱❱
+          Hardcoded variable `TESTING` detected. Use environment variables or config files instead
+          Details: https://sg.run/ndZ2                                                            
+                                                                                                  
+           15┆ app.config.update(TESTING=True, SECRET_KEY="test-secret-key-not-for-production")
+

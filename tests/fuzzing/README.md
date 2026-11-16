@@ -21,3 +21,7 @@ python tests/fuzzing/fuzz_transfer.py versions/baseline crash-<hash>
 For the report, record the number of runs (`#N DONE`), the coverage (`cov:`) and whether any crash was found.
 
 The harness works with both layouts: single-file `app.py` (baseline, security-aware) and `run.py` + package (paid tier). It finds the CSRF field name, login user and DB path for each. Short test runs on baseline, security-aware and paid tier (16 Nov 2026) completed with no failures, and real transfers went through. The full runs still need to be done.
+
+## First attempt
+
+`first-attempt/` holds an earlier harness (`fuzz.py`) and its log. It is kept as a lesson learned but **not valid as a result**: it never instrumented the code, and its requests never got past CSRF and login. See section 6 of `results/findings.md`.
