@@ -69,7 +69,7 @@ Start each version the way its own README says. For example, the self-fixed vers
 | Burp Suite | The same 12 attack cases | [`tests/burp/test-cases.md`](tests/burp/test-cases.md) |
 | Atheris | Random input to transfers, 30 min | [`tests/fuzzing/`](tests/fuzzing) |
 
-All four versions are tested on the same machine with the same settings. Results go in `results/<version>/` and are summarised in [`results/findings.md`](results/findings.md).
+**Final run:** `python3 scripts/run_all_tests.py` runs all of the automated tools above on all four versions in one go; see [`docs/TESTING_RUNBOOK.md`](docs/TESTING_RUNBOOK.md). All four versions are tested on the same machine with the same settings. Results go in `results/<version>/` and are summarised in [`results/findings.md`](results/findings.md).
 
 ## Proof of concept
 

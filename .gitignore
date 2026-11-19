@@ -29,3 +29,6 @@ fuzz-*/
 Thumbs.db
 .vscode/
 .idea/
+
+# Test runner workspace (venvs, databases)
+.testrun/
