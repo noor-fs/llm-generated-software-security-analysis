@@ -22,7 +22,7 @@ An earlier version made by giving ChatGPT the baseline's code was dropped, becau
 The first output's transfers always failed. Following the rule "if the app doesn't work, paste the error once, with no security hints", Hajra sent:
 
 ````text
-When I try to make a transfer it says "We could not complete the transfer. No funds were moved." and the terminal shows:
+When I try to make a transfer it says “We could not complete the transfer. No funds were moved.” and the terminal shows:
 sqlite3.IntegrityError: NOT NULL constraint failed: transactions.status
 ````
 

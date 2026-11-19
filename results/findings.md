@@ -2,7 +2,7 @@
 
 This is the master table for the report. Raw tool output is in each version's folder. Research questions are defined in [`docs/SCOPE.md`](../docs/SCOPE.md).
 
-> **Status:** the numbers below come from earlier runs on different machines and settings (see section 5). The final comparison re-runs every tool on all four versions on the same Ubuntu VM with the same settings.
+> **Status:** the numbers below come from earlier runs on different machines and settings (see section 5). Their raw files are kept in `results/<version>/earlier/`. The final comparison re-runs every tool on all four versions with the same settings, and those results go directly in `results/<version>/`.
 
 ## 1. Tool results by version
 
@@ -64,8 +64,8 @@ To add after the final re-test: anything the fix broke (shared HTTP suite, Burp 
 
 | Export | Version (how we know) | What it covers |
 |---|---|---|
-| `results/baseline/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline: no response has a CSP header | Wrong password rejected; transfer above balance rejected; normal transfer works |
-| `results/self-fixed/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed: all 14 responses carry the new CSP header | Login, transfer works; open redirect to `https://evil.com` blocked |
+| `results/baseline/earlier/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline: no response has a CSP header | Wrong password rejected; transfer above balance rejected; normal transfer works |
+| `results/self-fixed/earlier/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed: all 14 responses carry the new CSP header | Login, transfer works; open redirect to `https://evil.com` blocked |
 
 Both are proxy histories, not attack runs. Most cases in `tests/burp/test-cases.md` still need to be run on every version.
 
