@@ -22,7 +22,7 @@ Full scope and definitions: [`docs/SCOPE.md`](docs/SCOPE.md).
 |---|---|---|---|---|---|
 | [`versions/baseline`](versions/baseline) | Free, GPT-5.6 | Baseline prompt, new chat | Diana Al-Marri | Reference | Done |
 | [`versions/paid-tier`](versions/paid-tier) | Paid, GPT-6 (medium) | Same baseline prompt, new chat | Noor Al Huda Soueid | RQ1 | Done |
-| [`versions/security-aware`](versions/security-aware) | Free, GPT-5.6 | Baseline prompt + security section, new chat, no code | Khadija Alobeid | RQ2 | To generate |
+| [`versions/security-aware`](versions/security-aware) | Free, GPT-5.6 | Baseline prompt + security section, new chat, no code | Hajra Ghani | RQ2 | Done |
 | [`versions/self-fixed`](versions/self-fixed) | Free, GPT-5.6 | Baseline code + baseline test results | Kanita Ansari, Hajra Ghani | RQ3 | Done |
 
 Each folder has a `PROMPT.md` with the exact prompt and chat link. Generated code is committed exactly as ChatGPT produced it and is never edited by hand. `versions/baseline/V1_SHA256.json` holds the original hash of every baseline file.
@@ -50,10 +50,10 @@ Python 3.12 on Ubuntu. Give each version its own venv, database and port.
 |---|---|---|
 | Baseline | 5001 | `flask --app app init-db`, `flask --app app seed-demo`, `flask --app app run --port 5001` |
 | Paid tier | 5003 | `export FLASK_APP=run:app`, `flask init-db`, `flask seed-demo`, `flask run --port 5003` |
-| Security-aware | 5004 | see its README once generated |
+| Security-aware | 5004 | `export DEMOBANK_SECRET_KEY=$(openssl rand -hex 32)`, `flask --app app init-db`, `flask --app app seed-demo`, `flask --app app run --port 5004` |
 | Self-fixed | 5002 | `flask --app app init-db`, `flask --app app seed-demo`, `python run_local.py --host 127.0.0.1 --port 5002` |
 
-Start with `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`. Demo logins: `alice` / `bob` / `charlie` (paid tier: `alex` / `jordan` / `taylor`), password `DemoPass123!`.
+Start with `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`. Demo logins: `alice` / `bob` / `charlie` (paid tier: `alex` / `jordan` / `taylor`), password `DemoPass123!`. Security-aware: `alice` / `bob`, password `DemoPass12345!`.
 
 Start each version the way its own README says. For example, the self-fixed version's server-header fix only works when started with `run_local.py`.
 

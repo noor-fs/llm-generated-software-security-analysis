@@ -29,6 +29,7 @@ DB_FILE = os.path.join(tempfile.mkdtemp(prefix="fuzz-"), "fuzz.sqlite3")
 os.environ["DEMOBANK_DB"] = DB_FILE          # baseline / security-aware
 os.environ["DEMOBANK_DATABASE"] = DB_FILE    # paid tier
 os.environ.setdefault("DEMOBANK_DEBUG", "0")
+os.environ.setdefault("DEMOBANK_SECRET_KEY", os.urandom(32).hex())  # security-aware refuses to start without one
 sys.path.insert(0, APP_DIR)
 
 # Versions differ in layout: app.py (single file) or run.py + package (app factory).
@@ -59,10 +60,14 @@ with sqlite3.connect(DB_FILE) as _db:
 def login():
     page = client.get("/login").get_data(as_text=True)
     token = CSRF_RE.search(page)
-    form = {"username": USER, "identifier": USER, "password": "DemoPass123!"}  # field name differs per version
-    if token:
-        form[token.group(1)] = token.group(2)
-    client.post("/login", data=form)
+    for password in ("DemoPass123!", "DemoPass12345!"):  # demo password differs per version
+        page = client.get("/login").get_data(as_text=True)
+        token = CSRF_RE.search(page)
+        form = {"username": USER, "identifier": USER, "password": password}  # field name differs per version
+        if token:
+            form[token.group(1)] = token.group(2)
+        if client.post("/login", data=form).status_code == 302:
+            return
 
 
 login()

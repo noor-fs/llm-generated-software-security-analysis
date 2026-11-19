@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Virtual banking, made simple{% endblock %}
+{% block content %}
+<section class="hero">
+ <div class="hero-copy"><span class="eyebrow">A smarter way to explore banking</span><h1>Your money.<br><em>Your momentum.</em></h1>
+ <p>Explore a modern banking experience in a safe, fully virtual environment built for learning and security testing.</p>
+ <div class="hero-actions"><a class="btn primary" href="{{ url_for('register') }}">Get started <span>↗</span></a><a class="btn secondary" href="{{ url_for('about') }}">Explore DemoBank</a></div>
+ <div class="trust-line"><span>✦</span> 100% virtual funds &nbsp; · &nbsp; Built for academic research</div></div>
+ <div class="hero-art"><img src="{{ url_for('static', filename='img/banking-illustration.svg') }}" alt="Illustration of a virtual bank card and digital wallet"><div class="float-note"><span class="note-icon">↗</span><div><b>Banking without borders</b><small>Practice. Explore. Learn.</small></div></div></div>
+</section>
+<section class="feature-section"><div class="section-heading"><span class="eyebrow">Everything in one place</span><h2>Simple tools. Clear control.</h2><p>A complete demo banking journey, from account setup to transaction history.</p></div>
+<div class="feature-grid">
+ <article class="feature-card"><div class="feature-icon lavender">▣</div><h3>Virtual accounts</h3><p>View your account details and track your available demo balance.</p></article>
+ <article class="feature-card"><div class="feature-icon mint">⇄</div><h3>Easy transfers</h3><p>Move virtual funds between DemoBank accounts with clear confirmations.</p></article>
+ <article class="feature-card"><div class="feature-icon peach">◷</div><h3>Activity insights</h3><p>Review incoming and outgoing transfers in one organized timeline.</p></article>
+</div></section>
+<section class="bottom-cta"><div><span class="eyebrow">Ready to explore?</span><h2>Your demo account is one step away.</h2></div><a class="btn light" href="{{ url_for('register') }}">Create an account ↗</a></section>
+{% endblock %}

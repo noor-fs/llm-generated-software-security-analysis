@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DemoBank academic virtual banking application">
+  <title>{% block title %}DemoBank{% endblock %} · DemoBank</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">D</span><span>Demo<span class="brand-light">Bank</span></span></a>
+  <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="nav-links">
+    {% if current_user %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a><a href="{{ url_for('account') }}">My account</a>
+      <a href="{{ url_for('transfer') }}">Transfer</a><a href="{{ url_for('transactions') }}">Activity</a>
+      <a href="{{ url_for('notifications') }}">Alerts</a><a href="{{ url_for('profile') }}">Profile</a>
+      <form method="post" action="{{ url_for('logout') }}" class="nav-logout"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="nav-button">Sign out</button></form>
+    {% else %}
+      <a href="{{ url_for('about') }}">About</a><a href="{{ url_for('login') }}">Sign in</a><a class="nav-cta" href="{{ url_for('register') }}">Open demo account</a>
+    {% endif %}
+  </nav>
+</header>
+<main>
+  <div class="flash-wrap">{% with messages = get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}</div>
+  {% block content %}{% endblock %}
+</main>
+<footer><div class="footer-inner"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark">D</span> DemoBank</a><span>Academic demonstration only · No real money or banking services</span><a href="{{ url_for('about') }}">About this project</a></div></footer>
+</body></html>

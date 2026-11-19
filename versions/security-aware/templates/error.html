@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block title %}{{ code }}{% endblock %}{% block content %}<section class="page-hero centered"><span class="eyebrow">DemoBank · {{ code }}</span><h1>That didn't go as planned.</h1><p>{{ message }}</p><a class="btn primary" href="{{ url_for('home') }}">Back to homepage</a></section>{% endblock %}

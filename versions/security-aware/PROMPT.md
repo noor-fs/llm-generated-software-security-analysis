@@ -3,8 +3,8 @@
 **Question it answers (RQ2):** using the free model, does a prompt with specific security requirements produce a more secure app than the baseline prompt?
 
 **Model:** ChatGPT free, GPT-5.6 (Luna), the same model as the baseline
-**Made by:** _name_
-**Status:** generated 19 Nov 2026; code to be added
+**Made by:** Hajra Ghani
+**Status:** generated 19 Nov 2026 with free GPT-5.6, new chat, no memory of the project. Code committed exactly as produced.
 
 ## Rules
 

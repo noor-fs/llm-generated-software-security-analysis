@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block title %}Profile{% endblock %}{% block content %}
+<section class="page-hero compact"><span class="eyebrow">Personal details</span><h1>Your profile</h1><p>Manage the information associated with your DemoBank account.</p></section>
+<div class="form-card wide"><form method="post"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><label>Full name<input name="full_name" required minlength="2" maxlength="80" value="{{ user.full_name }}"></label><label>Username<input value="{{ user.username }}" disabled></label><label>Email address<input type="email" name="email" required maxlength="254" value="{{ user.email }}"></label><button class="btn primary">Save changes</button></form></div>{% endblock %}

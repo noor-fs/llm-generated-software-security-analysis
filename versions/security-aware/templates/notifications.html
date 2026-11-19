@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block title %}Notifications{% endblock %}{% block content %}
+<section class="page-hero compact"><span class="eyebrow">Stay in the loop</span><h1>Notifications</h1><p>Updates about your DemoBank account and transfers.</p></section>
+<div class="settings-list">{% for n in notifications %}<article class="notification-row"><span class="quick-icon {{ 'mint' if n.category=='success' else 'lavender' }}">✦</span><span><b>{{ n.message }}</b><small>{{ n.created_at }}</small></span></article>{% else %}<div class="empty-state">You're all caught up. No notifications yet.</div>{% endfor %}</div>{% endblock %}
