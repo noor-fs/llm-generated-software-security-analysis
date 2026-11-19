@@ -1,0 +1,7 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/tools/bin/bandit -r /home/noor-fs/llm-generated-software-security-analysis/versions/security-aware -x /home/noor-fs/llm-generated-software-security-analysis/versions/security-aware/tests,/home/noor-fs/llm-generated-software-security-analysis/versions/security-aware/test_app.py,/home/noor-fs/llm-generated-software-security-analysis/versions/security-aware/.venv,/home/noor-fs/llm-generated-software-security-analysis/versions/security-aware/venv -f json -o /home/noor-fs/llm-generated-software-security-analysis/results/security-aware/bandit.json
+
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: None
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[json]	INFO	JSON output written to file: /home/noor-fs/llm-generated-software-security-analysis/results/security-aware/bandit.json

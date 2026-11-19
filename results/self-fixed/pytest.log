@@ -1,0 +1,11 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/self-fixed/venv/bin/python -m pytest -p no:cacheprovider --junitxml=/home/noor-fs/llm-generated-software-security-analysis/results/self-fixed/pytest.xml
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/noor-fs/llm-generated-software-security-analysis/versions/self-fixed
+collected 8 items
+
+test_app.py ........                                                     [100%]
+
+- generated xml file: /home/noor-fs/llm-generated-software-security-analysis/results/self-fixed/pytest.xml -
+============================== 8 passed in 3.74s ===============================

@@ -1,0 +1,90 @@
+{
+  "errors": [],
+  "generated_at": "2026-11-19T18:52:00Z",
+  "metrics": {
+    "/home/noor-fs/llm-generated-software-security-analysis/versions/baseline/app.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 1,
+      "CONFIDENCE.MEDIUM": 1,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 441,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "_totals": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 1,
+      "CONFIDENCE.MEDIUM": 1,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 441,
+      "nosec": 0,
+      "skipped_tests": 0
+    }
+  },
+  "results": [
+    {
+      "code": "227         marks = \",\".join(\"?\" for _ in account_ids)\n228         txns = db.execute(f\"\"\"\n229             SELECT t.*, sa.account_number AS sender_number, su.full_name AS sender_name,\n230                    ra.account_number AS recipient_number, ru.full_name AS recipient_name,\n231                    sa.user_id AS sender_user_id\n232             FROM transfers t\n233             JOIN accounts sa ON sa.id=t.sender_account_id JOIN users su ON su.id=sa.user_id\n234             JOIN accounts ra ON ra.id=t.recipient_account_id JOIN users ru ON ru.id=ra.user_id\n235             WHERE t.sender_account_id IN ({marks}) OR t.recipient_account_id IN ({marks})\n236             ORDER BY t.created_at DESC, t.id DESC LIMIT 5\n237         \"\"\", tuple(account_ids + account_ids)).fetchall()\n238     unread = db.execute(\"SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0\", (user[\"id\"],)).fetchone()[0]\n",
+      "col_offset": 30,
+      "end_col_offset": 42,
+      "filename": "/home/noor-fs/llm-generated-software-security-analysis/versions/baseline/app.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 89,
+        "link": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible SQL injection vector through string-based query construction.",
+      "line_number": 228,
+      "line_range": [
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+      "test_id": "B608",
+      "test_name": "hardcoded_sql_expressions"
+    },
+    {
+      "code": "335         marks = \",\".join(\"?\" for _ in ids)\n336         sql = f\"\"\"\n337         SELECT t.*, sa.account_number AS sender_number, su.full_name AS sender_name,\n338                ra.account_number AS recipient_number, ru.full_name AS recipient_name,\n339                sa.user_id AS sender_user_id\n340         FROM transfers t JOIN accounts sa ON sa.id=t.sender_account_id JOIN users su ON su.id=sa.user_id\n341         JOIN accounts ra ON ra.id=t.recipient_account_id JOIN users ru ON ru.id=ra.user_id\n342         WHERE (t.sender_account_id IN ({marks}) OR t.recipient_account_id IN ({marks}))\n343         \"\"\"\n344         params = ids + ids\n",
+      "col_offset": 18,
+      "end_col_offset": 39,
+      "filename": "/home/noor-fs/llm-generated-software-security-analysis/versions/baseline/app.py",
+      "issue_confidence": "LOW",
+      "issue_cwe": {
+        "id": 89,
+        "link": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible SQL injection vector through string-based query construction.",
+      "line_number": 336,
+      "line_range": [
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+        342,
+        343
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html",
+      "test_id": "B608",
+      "test_name": "hardcoded_sql_expressions"
+    }
+  ]
+}

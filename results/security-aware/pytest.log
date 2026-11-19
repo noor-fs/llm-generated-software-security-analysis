@@ -1,0 +1,11 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/security-aware/venv/bin/python -m pytest -p no:cacheprovider --junitxml=/home/noor-fs/llm-generated-software-security-analysis/results/security-aware/pytest.xml
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/noor-fs/llm-generated-software-security-analysis/versions/security-aware
+collected 3 items
+
+tests/test_app.py ...                                                    [100%]
+
+- generated xml file: /home/noor-fs/llm-generated-software-security-analysis/results/security-aware/pytest.xml -
+============================== 3 passed in 1.04s ===============================

@@ -1,0 +1,11 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/self-fixed/venv/bin/python -m pytest -p no:cacheprovider /home/noor-fs/llm-generated-software-security-analysis/tests/shared-http --junitxml=/home/noor-fs/llm-generated-software-security-analysis/results/self-fixed/shared-http.xml
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/noor-fs/llm-generated-software-security-analysis
+collected 19 items
+
+tests/shared-http/test_shared_http.py ...................                [100%]
+
+- generated xml file: /home/noor-fs/llm-generated-software-security-analysis/results/self-fixed/shared-http.xml -
+============================== 19 passed in 0.90s ==============================

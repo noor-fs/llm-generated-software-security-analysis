@@ -1,0 +1,32 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/tools/bin/semgrep scan --metrics=off --config p/python --config p/flask --config p/owasp-top-ten --config /home/noor-fs/llm-generated-software-security-analysis/config/semgrep-custom.yml --exclude tests --exclude test_app.py --exclude .venv --exclude venv --json --output /home/noor-fs/llm-generated-software-security-analysis/results/baseline/semgrep.json /home/noor-fs/llm-generated-software-security-analysis/versions/baseline
+
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 24 files tracked by git with 567 Code rules:
+                                                                                                                        
+  Language      Rules   Files          Origin      Rules                                                                
+ ─────────────────────────────        ───────────────────                                                               
+  <multilang>       5      24          Community     564                                                                
+  html              1      14          Custom          3                                                                
+  python          154       1                                                                                           
+  js               65       1                                                                                           
+  json              3       1                                                                                           
+                                                                                                                        
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 1 (1 blocking)
+ • Rules run: 228
+ • Targets scanned: 24
+ • Parsed lines: ~97.1%
+ • Scan skipped: 
+   ◦ Matching --exclude patterns: 1
+ • Scan was limited to files tracked by git
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 228 rules on 24 files: 1 finding.

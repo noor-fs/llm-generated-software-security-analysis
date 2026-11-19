@@ -1,0 +1,207 @@
+INFO: Instrumenting app
+INFO: Instrumenting secrets
+INFO: Instrumenting base64
+INFO: Instrumenting struct
+INFO: Instrumenting hmac
+INFO: Instrumenting hashlib
+INFO: Instrumenting decimal
+INFO: Instrumenting numbers
+INFO: Instrumenting flask
+INFO: Instrumenting __future__
+INFO: Instrumenting flask.json
+INFO: Instrumenting json
+INFO: Instrumenting json.decoder
+INFO: Instrumenting json.scanner
+INFO: Instrumenting json.encoder
+INFO: Instrumenting flask.globals
+INFO: Instrumenting contextvars
+INFO: Instrumenting werkzeug
+INFO: Instrumenting werkzeug.serving
+INFO: Instrumenting selectors
+INFO: Instrumenting socket
+INFO: Instrumenting socketserver
+INFO: Instrumenting http
+INFO: Instrumenting http.server
+INFO: Instrumenting email
+INFO: Instrumenting email.utils
+INFO: Instrumenting email._parseaddr
+INFO: Instrumenting calendar
+INFO: Instrumenting locale
+INFO: Instrumenting email.charset
+INFO: Instrumenting email.base64mime
+INFO: Instrumenting email.quoprimime
+INFO: Instrumenting email.errors
+INFO: Instrumenting email.encoders
+INFO: Instrumenting quopri
+INFO: Instrumenting html
+INFO: Instrumenting html.entities
+INFO: Instrumenting http.client
+INFO: Instrumenting email.parser
+INFO: Instrumenting email.feedparser
+INFO: Instrumenting email._policybase
+INFO: Instrumenting email.header
+INFO: Instrumenting email.message
+INFO: Instrumenting email._encoded_words
+INFO: Instrumenting email.iterators
+INFO: Instrumenting ssl
+INFO: Instrumenting mimetypes
+INFO: Instrumenting werkzeug._internal
+INFO: Instrumenting werkzeug.exceptions
+INFO: Instrumenting markupsafe
+INFO: Instrumenting werkzeug.http
+INFO: Instrumenting werkzeug.datastructures
+INFO: Instrumenting werkzeug.datastructures.accept
+INFO: Instrumenting werkzeug.datastructures.structures
+INFO: Instrumenting werkzeug.datastructures.mixins
+INFO: Instrumenting werkzeug.datastructures.auth
+INFO: Instrumenting werkzeug.datastructures.cache_control
+INFO: Instrumenting werkzeug.datastructures.csp
+INFO: Instrumenting werkzeug.datastructures.etag
+INFO: Instrumenting werkzeug.datastructures.file_storage
+INFO: Instrumenting werkzeug.datastructures.headers
+INFO: Instrumenting werkzeug.datastructures.range
+INFO: Instrumenting werkzeug.sansio
+INFO: Instrumenting werkzeug.sansio.http
+INFO: Instrumenting werkzeug.urls
+INFO: Instrumenting werkzeug.test
+INFO: Instrumenting werkzeug.sansio.multipart
+INFO: Instrumenting werkzeug.utils
+INFO: Instrumenting pkgutil
+INFO: Instrumenting werkzeug.security
+INFO: Instrumenting werkzeug.wsgi
+INFO: Instrumenting werkzeug.sansio.utils
+INFO: Instrumenting werkzeug.wrappers
+INFO: Instrumenting werkzeug.wrappers.request
+INFO: Instrumenting werkzeug.formparser
+INFO: Instrumenting werkzeug.sansio.request
+INFO: Instrumenting werkzeug.user_agent
+INFO: Instrumenting werkzeug.wrappers.response
+INFO: Instrumenting werkzeug.sansio.response
+INFO: Instrumenting werkzeug.local
+INFO: Instrumenting flask.json.provider
+INFO: Instrumenting uuid
+INFO: Instrumenting platform
+INFO: Instrumenting flask.app
+INFO: Instrumenting click
+INFO: Instrumenting click.core
+INFO: Instrumenting gettext
+INFO: Instrumenting click.types
+INFO: Instrumenting click._compat
+INFO: Instrumenting click.exceptions
+INFO: Instrumenting click.globals
+INFO: Instrumenting click.utils
+INFO: Instrumenting click._utils
+INFO: Instrumenting click.formatting
+INFO: Instrumenting click.parser
+INFO: Instrumenting click.termui
+INFO: Instrumenting click.decorators
+INFO: Instrumenting werkzeug.routing
+INFO: Instrumenting werkzeug.routing.converters
+INFO: Instrumenting werkzeug.routing.exceptions
+INFO: Instrumenting difflib
+INFO: Instrumenting heapq
+INFO: Instrumenting werkzeug.routing.map
+INFO: Instrumenting pprint
+INFO: Instrumenting werkzeug.routing.matcher
+INFO: Instrumenting werkzeug.routing.rules
+INFO: Instrumenting flask.cli
+INFO: Instrumenting importlib.metadata
+INFO: Instrumenting csv
+INFO: Instrumenting zipfile
+INFO: Instrumenting zipfile._path
+INFO: Instrumenting zipfile._path.glob
+INFO: Instrumenting importlib.metadata._adapters
+INFO: Instrumenting importlib.metadata._text
+INFO: Instrumenting importlib.metadata._functools
+INFO: Instrumenting importlib.metadata._meta
+INFO: Instrumenting importlib.metadata._collections
+INFO: Instrumenting importlib.metadata._itertools
+INFO: Instrumenting flask.helpers
+INFO: Instrumenting flask.signals
+INFO: Instrumenting blinker
+INFO: Instrumenting blinker.base
+INFO: Instrumenting blinker._utilities
+INFO: Instrumenting flask.typing
+INFO: Instrumenting flask.ctx
+INFO: Instrumenting flask.sansio.app
+INFO: Instrumenting flask.config
+INFO: Instrumenting flask.logging
+INFO: Instrumenting flask.templating
+INFO: Instrumenting jinja2
+INFO: Instrumenting jinja2.bccache
+INFO: Instrumenting pickle
+INFO: Instrumenting _compat_pickle
+INFO: Instrumenting jinja2.environment
+INFO: Instrumenting jinja2.nodes
+INFO: Instrumenting jinja2.utils
+INFO: Instrumenting jinja2.compiler
+INFO: Instrumenting jinja2.exceptions
+INFO: Instrumenting jinja2.idtracking
+INFO: Instrumenting jinja2.visitor
+INFO: Instrumenting jinja2.optimizer
+INFO: Instrumenting jinja2.defaults
+INFO: Instrumenting jinja2.filters
+INFO: Instrumenting jinja2.async_utils
+INFO: Instrumenting jinja2.runtime
+INFO: Instrumenting jinja2.tests
+INFO: Instrumenting jinja2.lexer
+INFO: Instrumenting jinja2._identifier
+INFO: Instrumenting jinja2.parser
+INFO: Instrumenting jinja2.loaders
+INFO: Instrumenting flask.sansio.scaffold
+INFO: Instrumenting flask.sessions
+INFO: Instrumenting itsdangerous
+INFO: Instrumenting itsdangerous.encoding
+INFO: Instrumenting itsdangerous.exc
+INFO: Instrumenting itsdangerous.serializer
+INFO: Instrumenting itsdangerous.signer
+INFO: Instrumenting itsdangerous.timed
+INFO: Instrumenting itsdangerous.url_safe
+INFO: Instrumenting itsdangerous._json
+INFO: Instrumenting flask.json.tag
+INFO: Instrumenting flask.wrappers
+INFO: Instrumenting flask.blueprints
+INFO: Instrumenting flask.sansio.blueprints
+INFO: Instrumenting werkzeug.middleware
+INFO: Instrumenting werkzeug.middleware.proxy_fix
+INFO: Using built-in libfuzzer
+WARNING: Failed to find function "__sanitizer_acquire_crash_state".
+WARNING: Failed to find function "__sanitizer_print_stack_trace".
+WARNING: Failed to find function "__sanitizer_set_death_callback".
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 2289411571
+INFO: -max_len is not provided; libFuzzer will not generate inputs larger than 4096 bytes
+INFO: A corpus is not provided, starting from an empty corpus
+#2	INITED cov: 1253 ft: 1253 corp: 1/1b exec/s: 0 rss: 72Mb
+#7	NEW    cov: 1254 ft: 1254 corp: 2/3b lim: 4 exec/s: 0 rss: 72Mb L: 2/2 MS: 5 CopyPart-CopyPart-CrossOver-ChangeBit-ShuffleBytes-
+#79	NEW    cov: 1288 ft: 1439 corp: 3/7b lim: 4 exec/s: 0 rss: 72Mb L: 4/4 MS: 2 CMP-ShuffleBytes- DE: "\000\000"-
+#80	NEW    cov: 1297 ft: 1463 corp: 4/9b lim: 4 exec/s: 0 rss: 72Mb L: 2/4 MS: 1 ChangeByte-
+#156	REDUCE cov: 1297 ft: 1463 corp: 4/8b lim: 4 exec/s: 156 rss: 72Mb L: 1/4 MS: 1 EraseBytes-
+#160	REDUCE cov: 1297 ft: 1463 corp: 4/7b lim: 4 exec/s: 160 rss: 72Mb L: 1/4 MS: 4 ChangeBinInt-InsertByte-InsertByte-CrossOver-
+#256	pulse  cov: 1297 ft: 1463 corp: 4/7b lim: 4 exec/s: 128 rss: 72Mb
+#512	pulse  cov: 1297 ft: 1463 corp: 4/7b lim: 6 exec/s: 128 rss: 72Mb
+#883	REDUCE cov: 1303 ft: 1473 corp: 5/16b lim: 11 exec/s: 126 rss: 72Mb L: 9/9 MS: 3 ShuffleBytes-ChangeBit-CMP- DE: "\001\000\000\000\000\000\000\012"-
+#994	NEW    cov: 1304 ft: 1474 corp: 6/26b lim: 11 exec/s: 124 rss: 72Mb L: 10/10 MS: 1 CrossOver-
+#1024	pulse  cov: 1304 ft: 1474 corp: 6/26b lim: 11 exec/s: 128 rss: 72Mb
+#1070	REDUCE cov: 1304 ft: 1474 corp: 6/25b lim: 11 exec/s: 118 rss: 72Mb L: 9/9 MS: 1 EraseBytes-
+#1183	REDUCE cov: 1304 ft: 1474 corp: 6/23b lim: 11 exec/s: 118 rss: 72Mb L: 7/9 MS: 3 PersAutoDict-CrossOver-EraseBytes- DE: "\001\000\000\000\000\000\000\012"-
+#1272	REDUCE cov: 1304 ft: 1474 corp: 6/22b lim: 11 exec/s: 115 rss: 72Mb L: 6/9 MS: 4 ChangeBit-ChangeByte-ShuffleBytes-CrossOver-
+#2048	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 17 exec/s: 120 rss: 72Mb
+#4096	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 38 exec/s: 117 rss: 72Mb
+#8192	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 74 exec/s: 113 rss: 72Mb
+#16384	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 156 exec/s: 123 rss: 72Mb
+#32768	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 317 exec/s: 132 rss: 72Mb
+#65536	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 643 exec/s: 136 rss: 72Mb
+#131072	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 1300 exec/s: 137 rss: 72Mb
+#262144	pulse  cov: 1304 ft: 1474 corp: 6/22b lim: 2600 exec/s: 145 rss: 72Mb
+#262852	DONE   cov: 1304 ft: 1474 corp: 6/22b lim: 2611 exec/s: 145 rss: 72Mb
+###### Recommended dictionary. ######
+"\000\000" # Uses: 11711
+"\001\000\000\000\000\000\000\012" # Uses: 9372
+###### End of recommended dictionary. ######
+Done 262852 runs in 1801 second(s)
+stat::number_of_executed_units: 262852
+stat::average_exec_per_sec:     145
+stat::new_units_added:          10
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              72

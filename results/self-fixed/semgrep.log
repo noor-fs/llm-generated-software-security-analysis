@@ -1,0 +1,35 @@
+$ /home/noor-fs/llm-generated-software-security-analysis/.testrun/tools/bin/semgrep scan --metrics=off --config p/python --config p/flask --config p/owasp-top-ten --config /home/noor-fs/llm-generated-software-security-analysis/config/semgrep-custom.yml --exclude tests --exclude test_app.py --exclude .venv --exclude venv --json --output /home/noor-fs/llm-generated-software-security-analysis/results/self-fixed/semgrep.json /home/noor-fs/llm-generated-software-security-analysis/versions/self-fixed
+
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 28 files tracked by git with 567 Code rules:
+                                                                                                                        
+  Language      Rules   Files          Origin      Rules                                                                
+ ─────────────────────────────        ───────────────────                                                               
+  <multilang>       5      28          Community     564                                                                
+  html              1      14          Custom          3                                                                
+  python          154       2                                                                                           
+  js               65       1                                                                                           
+                                                                                                                        
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 0 (0 blocking)
+ • Rules run: 225
+ • Targets scanned: 28
+ • Parsed lines: ~97.2%
+ • Scan skipped: 
+   ◦ Matching --exclude patterns: 1
+ • Scan was limited to files tracked by git
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 225 rules on 28 files: 0 findings.
+(need more rules? `semgrep login` for additional free Semgrep Registry rules)
+
+If Semgrep missed a finding, please send us feedback to let us know!
+See https://semgrep.dev/docs/reporting-false-negatives/

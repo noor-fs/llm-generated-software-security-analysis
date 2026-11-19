@@ -1,0 +1,35 @@
+$ /snap/bin/zaproxy -cmd -dir /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home -port 8099 -quickurl http://127.0.0.1:5003 -quickout /home/noor-fs/llm-generated-software-security-analysis/results/paid-tier/zap.html -quickprogress
+
+g_module_open() failed for /snap/zaproxy/83/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-tiff.so: libtiff.so.5: cannot open shared object file: No such file or directory
+Found Java version 17.0.20.1
+Available memory: 31855 MB
+Using JVM args: -Xmx7963m
+493 [main] INFO  org.parosproxy.paros.Constant - Copying default configuration to /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home/config.xml
+618 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home/session
+619 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home/dirbuster
+619 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home/fuzzers
+619 [main] INFO  org.parosproxy.paros.Constant - Creating directory /home/noor-fs/llm-generated-software-security-analysis/.testrun/paid-tier/zap-home/plugin
+Accessing URL
+Using traditional spider
+Active scanning
+[                    ] 1% |
+[                    ] 3% /
+[==                  ] 14% -
+[===                 ] 16% \
+[====                ] 22% |
+[=====               ] 26% /
+[=====               ] 27% -
+[======              ] 30% \
+[======              ] 33% |
+[=======             ] 37% /
+[=======             ] 39% -
+[=========           ] 48% \
+[=========           ] 48% |
+[===========         ] 58% /
+[============        ] 60% -
+[============        ] 63% \
+[==============      ] 73% |
+[==================  ] 94% /
+[====================] 100% 
+Attack complete
+Writing results to /home/noor-fs/llm-generated-software-security-analysis/results/paid-tier/zap.html
