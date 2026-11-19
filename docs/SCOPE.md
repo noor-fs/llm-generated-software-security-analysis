@@ -44,7 +44,7 @@ The proposal listed five possible comparisons and said the list might be reduced
 |---|---|---|---|---|
 | Baseline | Free (GPT-5.6) | Baseline prompt, new chat | Diana | Reference for all |
 | Paid tier | Paid (GPT-6, medium) | Same baseline prompt, new chat | Noor | RQ1 |
-| Security-aware | Free (GPT-5.6) | Baseline prompt + security section, new chat, no existing code | Khadija | RQ2 |
+| Security-aware | Free (GPT-5.6) | Baseline prompt + security section, new chat, no existing code | Hajra (first generation by Khadija, replaced on 19 Nov) | RQ2 |
 | Self-fixed | Free (GPT-5.6) | Our proposal, the baseline code and the baseline test results | Kanita & Hajra | RQ3 |
 
 **Fairness rules:** a new chat with memory and custom instructions off; generated code is never edited by hand; every prompt and chat link is saved in the repo; all free-tier versions use GPT-5.6.
@@ -53,7 +53,9 @@ The security section in the security-aware prompt is based on the OWASP Top 10:2
 
 ## 6. How every version is tested
 
-The same seven tests on all four versions, **on the same machine** (the Ubuntu VM), with the same settings: Semgrep, Bandit, pip-audit, pytest, OWASP ZAP (quick scan), Burp Suite (the same 12 cases, sent through Burp and recorded) and Atheris (30 minutes on the transfer function). The work is split by task, not by version, so each test is run the same way on all four.
+The same seven tests on all four versions, **on the same machine**, with the same settings: Semgrep, Bandit, pip-audit, pytest, OWASP ZAP (quick scan), Burp Suite (the same 12 cases, sent through Burp and recorded) and Atheris (30 minutes on the transfer function). The work is split by task, not by version, so each test is run the same way on all four.
+
+**How it was done in practice (19 Nov 2026):** the earlier test runs had been done by different members with different settings, so they could not be compared fairly (they are kept in `results/<version>/earlier/`). To fix this, Noor wrote one script for all the automated tools (`scripts/run_all_tests.py`) and one for the Burp cases (`tests/burp/run_burp_cases.py`), and ran both on all four versions on one laptop: Ubuntu 24.04 under WSL 2 on Windows 11, Python 3.12.3, ZAP 2.17.0, Burp Suite Community 2026.11.2. A short dry run came first, then the final run with default settings. Every version got a fresh venv and database and was started exactly as its own README says. The exact steps are in `docs/TESTING_RUNBOOK.md`, and the results and their classification are in `results/findings.md`.
 
 ## 7. What we measure
 

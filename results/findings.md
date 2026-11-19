@@ -2,7 +2,7 @@
 
 The master results for the report. Research questions are defined in [`docs/SCOPE.md`](../docs/SCOPE.md).
 
-**Source:** the final standardized run (commit `8ab63fc`, 19 Nov 2026), with all seven automated steps on all four versions, on one machine (Ubuntu 24.04 under WSL, Python 3.12.3, ZAP 2.17.0), with identical settings. Raw output is in `results/<version>/` and the raw count table is in [`RUN_SUMMARY.md`](RUN_SUMMARY.md). Earlier, non-standardized runs are kept in `results/<version>/earlier/` and are **not** used for the comparison.
+**Source:** the final standardized run (commit `8ab63fc`, 19 Nov 2026), with all seven automated steps on all four versions, run by Noor on one machine (Ubuntu 24.04 under WSL 2 on Windows 11, Python 3.12.3, ZAP 2.17.0), with identical settings. How it was set up and run, step by step: `docs/TESTING_RUNBOOK.md` section 7. Raw output is in `results/<version>/` and the raw count table is in [`RUN_SUMMARY.md`](RUN_SUMMARY.md). Earlier, non-standardized runs are kept in `results/<version>/earlier/` and are **not** used for the comparison.
 
 **Burp:** the 12 manual-attack cases (`tests/burp/test-cases.md`) were run on all four versions through Burp Suite Community 2026.11.2 (commit `6e0453c`, 19 Nov 2026). Summary in [`BURP_SUMMARY.md`](BURP_SUMMARY.md), Burp's full HTTP history (649 requests) in `burp-history.xml`, and Repeater screenshots in `burp-screenshots/`.
 
