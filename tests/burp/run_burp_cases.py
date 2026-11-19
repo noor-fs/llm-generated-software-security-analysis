@@ -97,6 +97,24 @@ class Client:
         return fields, page
 
 
+def wait_until_ready(base, proxy, seconds=60):
+    """Wait until the app's login page comes back through the proxy.
+
+    When the script runs in WSL and Burp runs on Windows, a newly opened port takes a
+    moment to be forwarded to Windows; until then Burp answers with its own error page.
+    """
+    deadline = time.time() + seconds
+    while time.time() < deadline:
+        try:
+            status, _, body = Client(base, proxy).get("/login")
+            if status == 200 and CSRF_RE.search(body) and "<title>Burp Suite" not in body:
+                return True
+        except Exception:
+            pass
+        time.sleep(1)
+    return False
+
+
 # ------------------------------------------------------------------ database helpers
 def snapshot(db):
     with sqlite3.connect(db) as c:
@@ -123,6 +141,9 @@ def run_cases(name, base, db, proxy, venv_py, acct_path):
             if Client(base, proxy).login(user[1], p):
                 pw[user[1]] = p
                 break
+        else:
+            raise RuntimeError(f"could not log in as demo user '{user[1]}' with any known demo password; "
+                               "check that requests reach the app (Burp HTTP history) and the server log")
     A, V = att[1], vic[1]
     results = []
 
@@ -344,6 +365,9 @@ def main():
                     break
                 time.sleep(0.5)
             base = f"http://127.0.0.1:{cfg['port']}"
+            if not wait_until_ready(base, proxy):
+                sys.exit(f"[{name}] the app did not answer at {base}" + (f" through {proxy}" if proxy else "") +
+                         f" within 60s. See {work / 'burp-server.log'} and Burp's HTTP history.")
             print(f"[{name}] running 12 cases against {base}" + (f" via {proxy}" if proxy else " (no proxy)"))
             acct = "/accounts" if name == "paid-tier" else "/account"
             res = run_cases(name, base, db, proxy, venv_py, acct)
