@@ -4,7 +4,7 @@ The master results for the report. Research questions are defined in [`docs/SCOP
 
 **Source:** the final standardized run (commit `8ab63fc`, 19 Nov 2026), with all seven automated steps on all four versions, on one machine (Ubuntu 24.04 under WSL, Python 3.12.3, ZAP 2.17.0), with identical settings. Raw output is in `results/<version>/` and the raw count table is in [`RUN_SUMMARY.md`](RUN_SUMMARY.md). Earlier, non-standardized runs are kept in `results/<version>/earlier/` and are **not** used for the comparison.
 
-**Not yet included:** the 12 Burp cases (`tests/burp/test-cases.md`). They may add findings, e.g. on rate limiting or access control.
+**Burp:** the 12 manual-attack cases (`tests/burp/test-cases.md`) were run on all four versions through Burp Suite Community 2026.11.2 (commit `6e0453c`, 19 Nov 2026). Summary in [`BURP_SUMMARY.md`](BURP_SUMMARY.md), Burp's full HTTP history (649 requests) in `burp-history.xml`, and Repeater screenshots in `burp-screenshots/`.
 
 ## 1. Raw tool results (final run)
 
@@ -18,6 +18,7 @@ The master results for the report. Research questions are defined in [`docs/SCOP
 | Session-forgery exploit | **Exploited** (QAR 500 moved from bob without his password) | Blocked | Blocked | Blocked |
 | ZAP (High / Medium / Low / Info) | 0 / 2 / 2 / 3 | 0 / 2 / 2 / 2 | 0 / 0 / 1 / 3 | 0 / 0 / 0 / 3 |
 | Atheris (30 min) | 265,657 runs, no failures | 163,573 runs, no failures | 284,240 runs, no failures | 262,852 runs, no failures |
+| Burp: 12 cases, number vulnerable | 4 (cases 8, 9, 11, 12) | 3 (cases 8, 11, 12) | 0 | 2 (cases 8, 11) |
 
 ## 2. Every finding, checked
 
@@ -39,6 +40,12 @@ The master results for the report. Research questions are defined in [`docs/SCOP
 | Security-aware | pip-audit | Flask 3.1.1: PYSEC-2026-2151 (fix 3.1.3) | **Confirmed** (V7) | Missing `Vary: Cookie` when the session is accessed; matters behind a caching proxy. Low locally |
 | Security-aware | pip-audit | Werkzeug 3.1.3: PYSEC-2026-2044, -2046, -2320, -4312 (fixes 3.1.4–3.1.9) | **Confirmed** (V7) | `safe_join` and Windows device names; exploitable on Windows only. Low on Ubuntu. Cause: the model pinned old versions |
 | Security-aware | ZAP Low | Server version disclosed | **Confirmed** (V5) | The prompt explicitly said "Do not reveal server or framework versions" |
+| Baseline, paid, self-fixed | Burp case 11 | 30 wrong passwords, then the right one still works | **Confirmed** (V8) | Every wrong attempt got a normal 200 page; no lockout, delay or limit |
+| Baseline, paid, self-fixed | Burp case 8 | Old session still works after a password change | **Confirmed** (V9) | A second browser stayed logged in (`/dashboard` 200) after the password was changed in the first |
+| Baseline | Burp case 9 | Session forgery through Burp | **Confirmed** (V1) | Same as the exploit: QAR 5 moved from bob's account |
+| Baseline, paid | Burp case 12 | Logged-in pages lack CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy | **Confirmed** (V3, V4, V6) | Same as ZAP, now on logged-in pages too. All versions set `HttpOnly` and `SameSite=Lax` on the session cookie |
+| Baseline, sec-aware, self-fixed | Burp case 5 | `amount=1e3` accepted as QAR 1,000 | Not a vulnerability | Scientific notation is parsed as a number; exactly that amount moves and nothing is created. Input-validation quirk only. Paid rejects it |
+| All | Burp cases 1–7, 10 | No login, CSRF removal, SQL injection, stored XSS, odd amounts, IDOR, replay, open redirect | Blocked everywhere | Paid answers missing/wrong CSRF with 403; the others with 400 |
 | All | ZAP Info | User Controllable HTML Element Attribute (Potential XSS) | False positive | Reflected values (CSRF token, search box) are HTML-escaped by Jinja |
 | All | ZAP Info | Authentication request / session management identified; User Agent Fuzzer | Not a vulnerability | Informational only |
 
@@ -53,19 +60,21 @@ The master results for the report. Research questions are defined in [`docs/SCOP
 | V5 | Server and framework version disclosed | CWE-497 | A02 | Low | ✓ | ✓ | ✓ | ✗ |
 | V6 | No X-Content-Type-Options | CWE-693 | A02 | Low | ✓ | ✓ | ✗ | ✗ |
 | V7 | Known-vulnerable pinned dependencies | CWE-1395 | A03 | Low | ✗ | ✗ | ✓ | ✗ |
-| | **Total** | | | | **6** (1 High, 3 Medium, 2 Low) | **4** (2 Medium, 2 Low) | **2** (2 Low) | **0** |
+| V8 | No login rate limiting or lockout (unlimited password guessing) | CWE-307 | A07 | Medium | ✓ | ✓ | ✗ | ✓ |
+| V9 | Sessions not ended after a password change | CWE-613 | A07 | Low | ✓ | ✓ | ✗ | ✓ |
+| | **Total** | | | | **8** (1 High, 4 Medium, 3 Low) | **6** (3 Medium, 3 Low) | **2** (2 Low) | **2** (1 Medium, 1 Low) |
 
-Severity: ZAP's risk level for the header findings; our judgement for the others. V3 and V4 could be counted as one "missing security headers" item; the comparison doesn't change.
+Severity: ZAP's risk level for the header findings; our judgement for the others. V1–V7 come from the automated run (plus manual review and the exploit); V8–V9 come from the Burp cases. V3 and V4 could be counted as one "missing security headers" item; the comparison doesn't change.
 
 ## 4. Results per research question
 
-**RQ1, free vs. paid (same prompt).** Paid had 4 confirmed vulnerabilities against the baseline's 6, and none rated High. It avoided both code-level flaws (the hard-coded secret key and debug default). But its configuration gaps are **identical** to the free model's: no CSP, no clickjacking protection, version disclosure, no `nosniff`. The prompt asked both models to choose appropriate security practices; neither added security headers.
+**RQ1, free vs. paid (same prompt).** Paid had 6 confirmed vulnerabilities against the baseline's 8, and none rated High. It avoided both code-level flaws (the hard-coded secret key and debug default). But everything else is **identical** to the free model's: no CSP, no clickjacking protection, version disclosure, no `nosniff`, unlimited password guessing, and sessions that survive a password change. The prompt asked both models to choose appropriate security practices; neither added security headers or login limits.
 
-**RQ2, security-aware prompt (same free model).** 2 confirmed vulnerabilities against the baseline's 6, both Low. The explicit requirements fixed the secret key, debug mode and three headers. But the model **broke two explicit requirements**: it still discloses the server version, and pinning versions ("pin their versions") produced old Flask and Werkzeug releases with known vulnerabilities, which the unpinned versions avoided. Its first output also had a broken transfer feature, fixed after one error-only follow-up (see section 6).
+**RQ2, security-aware prompt (same free model).** 2 confirmed vulnerabilities against the baseline's 8, both Low. It is the **only** version that locks accounts after repeated wrong passwords and ends other sessions on a password change. Both were explicit requirements in the prompt, and it passed all 12 Burp cases. But the model **broke two explicit requirements**: it still discloses the server version, and pinning versions ("pin their versions") produced old Flask and Werkzeug releases with known vulnerabilities, which the unpinned versions avoided. Its first output also had a broken transfer feature, fixed after one error-only follow-up (see section 6).
 
-**RQ3, self-fix (free model given baseline code + tool results).** 0 confirmed vulnerabilities. It fixed all 6 of the baseline's, including the two that **no tool had reported** (secret key, debug default). No regressions: all 19 shared HTTP tests and its own 8 tests pass. Its claim to hide the server version holds only when started with its `run_local.py`, as its README says; with `flask run` the version still shows (earlier ZAP run).
+**RQ3, self-fix (free model given baseline code + tool results).** 2 confirmed vulnerabilities, down from the baseline's 8. It fixed all 6 baseline issues found by the automated run, including two that **no tool had reported** (secret key, debug default). But it did **not** fix the two found later by Burp (unlimited password guessing, sessions surviving a password change). The material it was given never tested for these. So self-fixing covered what it was shown plus some obvious extras, not weaknesses outside the evidence. No regressions: all 19 shared HTTP tests and its own 8 tests pass. Its claim to hide the server version holds only when started with its `run_local.py`, as its README says; with `flask run` the version still shows (earlier ZAP run).
 
-**Across all versions:** Semgrep (228 rules) and Bandit found no confirmed vulnerability in any version; all 4 of their findings were false positives. The only High finding (V1) was found by manual review and proven by our exploit. Atheris found no balance or money-creation bugs in any version's transfer logic. Coverage stopped growing within seconds (the same as in the 30-second dry run), so it explored everything the transfer endpoint does early on.
+**Across all versions:** Semgrep (228 rules) and Bandit found no confirmed vulnerability in any version; all 4 of their findings were false positives. The only High finding (V1) was found by manual review and proven by our exploit, and two of the nine (V8, V9) were only found by the manual Burp cases, not by any automated tool. All four versions blocked the classic attacks: SQL injection, stored XSS, CSRF removal, IDOR, replay, odd amounts and open redirect. Atheris found no balance or money-creation bugs in any version's transfer logic. Coverage stopped growing within seconds (the same as in the 30-second dry run), so it explored everything the transfer endpoint does early on.
 
 ## 5. RQ3: self-fix claims vs. re-test
 
@@ -82,6 +91,8 @@ ChatGPT's own claims are in `versions/self-fixed/docs/SECURITY_REMEDIATION.md`.
 | ZAP: potential XSS (info) | False positive | Said it's not a confirmed XSS | n/a | Correct call |
 | Hard-coded secret key (no tool reported it) | Real | Changed it anyway | ✓ | Exploit blocked |
 | Debug on by default (no tool reported it) | Real | Changed it anyway | ✓ | Defaults to off |
+| Unlimited password guessing (never given to it: found later by Burp) | Real | Not addressed | ✗ | Burp case 11: still vulnerable |
+| Sessions survive a password change (never given to it) | Real | Not addressed | ✗ | Burp case 8: still vulnerable |
 | Regressions | | | None | Shared HTTP 19/19, own tests 8/8 |
 
 ## 6. Functional bugs (not security, but relevant)
@@ -95,12 +106,29 @@ ChatGPT's own claims are in `versions/self-fixed/docs/SECURITY_REMEDIATION.md`.
 
 ## 7. Burp Suite
 
-Not yet run as a standardized test. The only Burp evidence so far is two earlier proxy histories:
+The same 12 cases on every version, sent through Burp's proxy by `tests/burp/run_burp_cases.py`, which also checks each result (e.g. whether money actually moved). Two cases were then replayed by hand in Repeater (screenshots).
 
-| Export | Version | What it covers |
-|---|---|---|
-| `results/baseline/earlier/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline (no response has a CSP header) | Wrong password rejected; transfer above balance rejected; normal transfer works |
-| `results/self-fixed/earlier/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed (all responses carry its CSP header) | Login and transfer work; open redirect to `https://evil.com` blocked |
+| # | Case | Baseline | Paid | Sec-aware | Self-fixed |
+|---|---|---|---|---|---|
+| 1 | Access without login | Blocked | Blocked | Blocked | Blocked |
+| 2 | CSRF token removed / wrong | Blocked | Blocked | Blocked | Blocked |
+| 3 | SQL injection | Blocked | Blocked | Blocked | Blocked |
+| 4 | Stored XSS | Blocked | Blocked | Blocked | Blocked |
+| 5 | Negative / odd amounts | Blocked | Blocked | Blocked | Blocked |
+| 6 | IDOR | Blocked | Blocked | Blocked | Blocked |
+| 7 | Replay | Blocked | Blocked | Blocked | Blocked |
+| 8 | Session after password change | **Vulnerable** | **Vulnerable** | Blocked | **Vulnerable** |
+| 9 | Session forgery | **Vulnerable** | Blocked | Blocked | Blocked |
+| 10 | Open redirect | Blocked | Blocked | Blocked | Blocked |
+| 11 | Brute force (30 wrong passwords) | **Vulnerable** | **Vulnerable** | Blocked (locked after 5) | **Vulnerable** |
+| 12 | Security headers (logged in) | **Vulnerable** | **Vulnerable** | Blocked | Blocked |
+
+**Evidence:** `burp-history.xml` (649 requests: about 160 per version, by port 5001 baseline, 5003 paid, 5000 security-aware, 5002 self-fixed, plus the manual Repeater requests). `burp-screenshots/negative-amount.png` shows `amount=-500` rejected with "Enter a valid positive amount…". `burp-screenshots/csrf-removed.png` shows a transfer without its CSRF token rejected with 400 Bad Request.
+
+**Notes:**
+- Security-aware case 8 passes for a stricter reason: it allows one session per user, so logging in again already ended the older session.
+- Security-aware rejected `1e3` in one earlier dry run but accepted it in the final run. The difference is its idempotency-key bug (section 6), which randomly rejects about 1 in 3 transfers, not stricter validation.
+- The earlier proxy histories (`results/baseline/earlier/burp/`, `results/self-fixed/earlier/burp/`) were browsing only and are not used.
 
 ## 8. Notes on the method
 
