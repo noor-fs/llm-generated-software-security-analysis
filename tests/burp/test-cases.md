@@ -1,10 +1,22 @@
-# Burp Suite manual test cases
+# Burp Suite test cases
 
-Run every case on every version using Proxy → HTTP history and Repeater. Save the request and response (right-click → Save item) as `results/<version>/burp/<case>.txt` and add a screenshot for anything that works.
+The same 12 cases are run on every version by `run_burp_cases.py`, which sends every request **through Burp's proxy**, so Burp's HTTP history records all of them. The script also checks each result itself (for example, whether money actually moved).
 
-Field and route names differ in the paid tier: CSRF field `_csrf`, login field `identifier`, account page `/accounts`, users `alex`/`jordan`/`taylor`.
+## How to run
 
-Result key: **V** = vulnerable (attack worked), **B** = blocked, **N/A** = feature doesn't exist in that version.
+1. Run `scripts/run_all_tests.py` at least once first (the Burp script reuses its environments in `.testrun/`).
+2. Open **Burp Suite Community** → **Proxy** → **Intercept is off**. Check the listener is `127.0.0.1:8080` (Proxy → Proxy settings).
+3. From the repo root:
+   ```bash
+   python3 tests/burp/run_burp_cases.py
+   ```
+   It starts each version in turn (fresh database), runs the 12 cases, and stops it. About 2–3 minutes in total.
+4. In Burp: **Proxy → HTTP history** → click in the list → **Ctrl+A** → right-click → **Save items** → save as `results/burp-history.xml`. The port shows which version each request belongs to: 5001 baseline, 5003 paid-tier, 5000 security-aware, 5002 self-fixed.
+5. For the report and video, pick 2–3 requests (e.g. a transfer with the CSRF token removed, a `-500` amount), right-click → **Send to Repeater**, edit and resend them by hand, and take screenshots.
+
+Results: `results/BURP_SUMMARY.md` (all versions) and `results/<version>/burp-cases.md` (details).
+
+## The 12 cases
 
 | # | Test case | How | Baseline | Paid | Sec-aware | Self-fixed |
 |---|---|---|---|---|---|---|
@@ -21,4 +33,4 @@ Result key: **V** = vulnerable (attack worked), **B** = blocked, **N/A** = featu
 | 11 | Brute force | Send 50 wrong passwords for `alice` with Intruder (Community is throttled, that's fine) | | | | |
 | 12 | Security headers / cookies | Check responses for `Content-Security-Policy`, `X-Frame-Options`, and cookie `HttpOnly`/`SameSite` flags | | | | |
 
-Burp Suite **Community** has no automated vulnerability scanner, so these are manual tests. Say so in the report.
+Burp Suite **Community** has no automated vulnerability scanner. The cases are scripted and sent through Burp's proxy, with selected requests replayed manually in Repeater. Say so in the report.

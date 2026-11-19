@@ -112,3 +112,35 @@ This overwrites the dry-run files. Leave the machine on and don't run anything o
 | "port … already in use" | Something is running on that port. Stop it (`fuser -k 5001/tcp`) and re-run |
 | App "did not start" | See `results/<version>/server.log` and record the error. Don't fix the app |
 | Want to re-run one version only | `python3 scripts/run_all_tests.py --versions paid-tier`. Only for fixing a setup problem; the final results should come from one full run |
+
+## 6. Burp test cases (after the automated run)
+
+Runs the same 12 attack cases (`tests/burp/test-cases.md`) on all four versions through Burp's proxy. Takes about 10 minutes including setup.
+
+1. Open **Burp Suite Community**, start a temporary project, **Proxy → Intercept is off**, listener `127.0.0.1:8080`.
+2. Run:
+   ```bash
+   python3 tests/burp/run_burp_cases.py
+   ```
+3. Export Burp's history: **Proxy → HTTP history** → **Ctrl+A** → right-click → **Save items** → `results/burp-history.xml`.
+4. Take 2–3 Repeater screenshots for the report (see `tests/burp/test-cases.md`) and save them in `results/burp-screenshots/`.
+5. Commit: `git add results/ && git commit -m "Burp test cases (all four versions)" && git push`
+
+A dry run without Burp (`--no-proxy`) on a cloud Linux machine gave:
+
+| # | Case | baseline | paid-tier | security-aware | self-fixed |
+|---|---|---|---|---|---|
+| 1 | Access without login | Blocked | Blocked | Blocked | Blocked |
+| 2 | CSRF token removed / wrong | Blocked | Blocked | Blocked | Blocked |
+| 3 | SQL injection | Blocked | Blocked | Blocked | Blocked |
+| 4 | Stored XSS | Blocked | Blocked | Blocked | Blocked |
+| 5 | Negative / odd amounts | Blocked | Blocked | Blocked | Blocked |
+| 6 | IDOR | Blocked | Blocked | Blocked | Blocked |
+| 7 | Replay | Blocked | Blocked | Blocked | Blocked |
+| 8 | Session after password change | Vulnerable | Vulnerable | Blocked | Vulnerable |
+| 9 | Session forgery | Vulnerable | Blocked | Blocked | Blocked |
+| 10 | Open redirect | Blocked | Blocked | Blocked | Blocked |
+| 11 | Brute force | Vulnerable | Vulnerable | Blocked | Vulnerable |
+| 12 | Security headers / cookies | Vulnerable | Vulnerable | Blocked | Blocked |
+
+If "Burp is not listening", Burp isn't open or uses another port (`--proxy http://127.0.0.1:PORT`). If requests hang, Intercept is on.
