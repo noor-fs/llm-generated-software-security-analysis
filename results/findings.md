@@ -1,117 +1,111 @@
 # Findings
 
-This is the master table for the report. Raw tool output is in each version's folder. Research questions are defined in [`docs/SCOPE.md`](../docs/SCOPE.md).
+The master results for the report. Research questions are defined in [`docs/SCOPE.md`](../docs/SCOPE.md).
 
-> **Status:** the numbers below come from earlier runs on different machines and settings (see section 5). Their raw files are kept in `results/<version>/earlier/`. The final comparison re-runs every tool on all four versions with the same settings, and those results go directly in `results/<version>/`.
+**Source:** the final standardized run (commit `8ab63fc`, 19 Nov 2026), with all seven automated steps on all four versions, on one machine (Ubuntu 24.04 under WSL, Python 3.12.3, ZAP 2.17.0), with identical settings. Raw output is in `results/<version>/` and the raw count table is in [`RUN_SUMMARY.md`](RUN_SUMMARY.md). Earlier, non-standardized runs are kept in `results/<version>/earlier/` and are **not** used for the comparison.
 
-## 1. Tool results by version
+**Not yet included:** the 12 Burp cases (`tests/burp/test-cases.md`). They may add findings, e.g. on rate limiting or access control.
 
-| Tool | Baseline | Paid tier | Security-aware | Self-fixed |
+## 1. Raw tool results (final run)
+
+| Tool | Baseline (free) | Paid tier | Security-aware | Self-fixed |
 |---|---|---|---|---|
-| Semgrep | 1 (3 custom rules only) | | | 2 (registry rules, both false positives) |
-| Bandit | 2 (B608, false positives) | | | 0 |
-| pip-audit (`requirements.txt`) | 0 vulnerable / 7 packages | | | 0 / 7 |
-| pytest (own tests) | 3 / 3 | 7 / 9 (2 failures are bugs in GPT-6's tests) | 3 / 3 after follow-up fix (unittest; 2 / 3 before, see section 7) | 8 / 8 |
-| pytest (shared HTTP suite) | 19 / 19 | can't run unchanged (different routes) | | not run yet |
-| OWASP ZAP | 0 High, 2 Medium, 2 Low, 3 Info | | | 0 High, 0 Medium, 1 Low, 3 Info |
-| Burp Suite | Proxy history (see section 4) | | | Proxy history (see section 4) |
-| Atheris | ⚠ not valid yet (section 6) | | | ⚠ not valid yet (section 6) |
-| **Confirmed vulnerabilities** | **4** | | | **0 of the baseline's 4** |
+| Semgrep (228 rules) | 1 | 0 | 0 | 0 |
+| Bandit | 2 (Medium) | 0 | 2 (1 Low, 1 Medium) | 0 |
+| pip-audit | 0 / 7 packages | 0 / 11 | 9 entries, 5 distinct IDs / 7 | 0 / 7 |
+| Own tests | 3 / 3 | 7 / 9 | 3 / 3 | 8 / 8 |
+| Shared HTTP tests (19) | 19 / 19 | n/a (different routes) | n/a (different field names) | 19 / 19 |
+| Session-forgery exploit | **Exploited** (QAR 500 moved from bob without his password) | Blocked | Blocked | Blocked |
+| ZAP (High / Medium / Low / Info) | 0 / 2 / 2 / 3 | 0 / 2 / 2 / 2 | 0 / 0 / 1 / 3 | 0 / 0 / 0 / 3 |
+| Atheris (30 min) | 265,657 runs, no failures | 163,573 runs, no failures | 284,240 runs, no failures | 262,852 runs, no failures |
 
-### Notes on individual results
+## 2. Every finding, checked
 
-- **Baseline Bandit B608** (lines 228, 336): the f-string only inserts `?` placeholders (`",".join("?" for _ in ids)`). The values are still bound parameters, so these are false positives.
-- **Self-fixed Semgrep `open-redirect`** (line 239): `next` is only followed if it starts with `/` and not `//`, so external URLs are rejected. The Burp test with `next=https://evil.com` was blocked. Likely a false positive.
-- **Self-fixed Semgrep `avoid_hardcoded_config_TESTING`**: an audit-style rule about a config setting, not a vulnerability.
-- **Self-fixed pip-audit:** Kanita and Hajra's `pip_audit.json` reports 17 vulnerabilities, but it scanned all 92 packages in their environment. Re-run against `requirements.txt` (`pip-audit-requirements.json`, 16 Nov): 0 vulnerabilities. Always audit `requirements.txt`.
-- **Paid tier pytest:** `test_transfer_success_repeat_and_authorization` checks that "Lunch" is not on `/transactions?q=Lunch`, but the search box echoes the query back. `test_register_duplicate_and_new_user` reads `_csrf` from the session right after registration calls `session.clear()`.
+**Confirmed** = we exploited it, or confirmed it in the code with a clear impact. **False positive** = checked, and not a real security problem.
 
-## 2. Confirmed vulnerabilities
+| Version | Tool | Finding | Verdict | Why |
+|---|---|---|---|---|
+| Baseline | Bandit B608 ×2 (app.py 228, 336) | SQL built from a string | False positive | Only `?` placeholders are inserted (`",".join("?" for _ in ids)`); all values are still bound parameters |
+| Baseline | Semgrep `demobank-sql-fstring` (app.py 228) | Same line as above | False positive | Same reason (this is our own custom rule) |
+| Baseline | ZAP Medium | CSP header not set | **Confirmed** (V3) | No header in any response |
+| Baseline | ZAP Medium | Missing anti-clickjacking header | **Confirmed** (V4) | Pages can be framed by another site |
+| Baseline | ZAP Low | Server version disclosed | **Confirmed** (V5) | `Server: Werkzeug/3.1.9 Python/3.12.3` |
+| Baseline | ZAP Low | X-Content-Type-Options missing | **Confirmed** (V6) | No `nosniff` header |
+| Baseline | Manual + exploit | Hard-coded fallback secret key | **Confirmed** (V1) | Exploited: forged bob's session and moved QAR 500. **Missed by Semgrep and Bandit** |
+| Baseline | Manual (code) | Debug on by default with `python app.py` | **Confirmed** (V2) | `DEMOBANK_DEBUG` defaults to `"1"` (app.py 474). Not active when started as the README says (`flask run`). **Missed by Bandit** (B201 only matches literal `debug=True`) |
+| Paid tier | ZAP Medium ×2, Low ×2 | Same four header alerts as baseline | **Confirmed** (V3–V6) | No security-header code anywhere in the app |
+| Security-aware | Bandit B608 (app.py 265) | SQL built from a string | False positive | Joined clauses are fixed strings; user values go in `params` |
+| Security-aware | Bandit B105 (app.py 24) | Hard-coded password string | False positive (not reachable) | `"test-only-secret-not-for-deployment"` is only used when `TESTING` is on. `TESTING = False` in config and only unit tests change it. It is a small lapse against the prompt's "never fall back to a default value" |
+| Security-aware | pip-audit | Flask 3.1.1: PYSEC-2026-2151 (fix 3.1.3) | **Confirmed** (V7) | Missing `Vary: Cookie` when the session is accessed; matters behind a caching proxy. Low locally |
+| Security-aware | pip-audit | Werkzeug 3.1.3: PYSEC-2026-2044, -2046, -2320, -4312 (fixes 3.1.4–3.1.9) | **Confirmed** (V7) | `safe_join` and Windows device names; exploitable on Windows only. Low on Ubuntu. Cause: the model pinned old versions |
+| Security-aware | ZAP Low | Server version disclosed | **Confirmed** (V5) | The prompt explicitly said "Do not reveal server or framework versions" |
+| All | ZAP Info | User Controllable HTML Element Attribute (Potential XSS) | False positive | Reflected values (CSRF token, search box) are HTML-escaped by Jinja |
+| All | ZAP Info | Authentication request / session management identified; User Agent Fuzzer | Not a vulnerability | Informational only |
 
-"Confirmed" means we exploited it, or traced it in the code with a clear impact.
+## 3. Confirmed vulnerabilities by version
 
-| # | Vulnerability | CWE | OWASP 2025 | Found by | Base | Paid | Sec | Fixed |
+| # | Vulnerability | CWE | OWASP 2025 | Severity | Baseline | Paid | Sec-aware | Self-fixed |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Hard-coded fallback `SECRET_KEY` allows session forgery and account takeover | CWE-321 / CWE-798 | A07, A02 | Manual review + PoC (missed by Bandit and Semgrep) | ✓ | | | ✗ |
-| 2 | Debug mode on by default when started with `python app.py` | CWE-489 / CWE-215 | A02 | Manual review (missed by Bandit B201, which only matches literal `debug=True`) | ✓ | | | ✗ |
-| 3 | No anti-clickjacking protection | CWE-1021 | A02 | ZAP | ✓ | | | ✗ |
-| 4 | No Content Security Policy | CWE-693 | A02 | ZAP | ✓ | | | ✗ |
+| V1 | Hard-coded fallback secret key → session forgery, account takeover | CWE-321, CWE-798 | A04, A07 | High | ✓ | ✗ | ✗ | ✗ |
+| V2 | Debug mode on by default (`python app.py`) | CWE-489 | A02 | Medium | ✓ | ✗ | ✗ | ✗ |
+| V3 | No Content Security Policy | CWE-693 | A02 | Medium | ✓ | ✓ | ✗ | ✗ |
+| V4 | No anti-clickjacking protection | CWE-1021 | A02 | Medium | ✓ | ✓ | ✗ | ✗ |
+| V5 | Server and framework version disclosed | CWE-497 | A02 | Low | ✓ | ✓ | ✓ | ✗ |
+| V6 | No X-Content-Type-Options | CWE-693 | A02 | Low | ✓ | ✓ | ✗ | ✗ |
+| V7 | Known-vulnerable pinned dependencies | CWE-1395 | A03 | Low | ✗ | ✗ | ✓ | ✗ |
+| | **Total** | | | | **6** (1 High, 3 Medium, 2 Low) | **4** (2 Medium, 2 Low) | **2** (2 Low) | **0** |
 
-- **#1:** exploited end to end on the baseline (16 Nov 2026). The same exploit failed against the self-fixed version (16 Nov 2026), which uses a random key when none is set. See `exploit/session-forgery/`.
-- **#2:** baseline line 474: `DEMOBANK_DEBUG` defaults to `"1"`. Self-fixed defaults to `"0"`.
-- **#3, #4:** the self-fixed version sends `Content-Security-Policy` (including `frame-ancestors 'none'`) and `X-Frame-Options: DENY`. ZAP no longer reports them.
-- You could count #3 and #4 as one "missing security headers" item. Decide once and use the same rule for every version.
+Severity: ZAP's risk level for the header findings; our judgement for the others. V3 and V4 could be counted as one "missing security headers" item; the comparison doesn't change.
 
-## 3. RQ3: self-fix claims vs. re-test
+## 4. Results per research question
+
+**RQ1, free vs. paid (same prompt).** Paid had 4 confirmed vulnerabilities against the baseline's 6, and none rated High. It avoided both code-level flaws (the hard-coded secret key and debug default). But its configuration gaps are **identical** to the free model's: no CSP, no clickjacking protection, version disclosure, no `nosniff`. The prompt asked both models to choose appropriate security practices; neither added security headers.
+
+**RQ2, security-aware prompt (same free model).** 2 confirmed vulnerabilities against the baseline's 6, both Low. The explicit requirements fixed the secret key, debug mode and three headers. But the model **broke two explicit requirements**: it still discloses the server version, and pinning versions ("pin their versions") produced old Flask and Werkzeug releases with known vulnerabilities, which the unpinned versions avoided. Its first output also had a broken transfer feature, fixed after one error-only follow-up (see section 6).
+
+**RQ3, self-fix (free model given baseline code + tool results).** 0 confirmed vulnerabilities. It fixed all 6 of the baseline's, including the two that **no tool had reported** (secret key, debug default). No regressions: all 19 shared HTTP tests and its own 8 tests pass. Its claim to hide the server version holds only when started with its `run_local.py`, as its README says; with `flask run` the version still shows (earlier ZAP run).
+
+**Across all versions:** Semgrep (228 rules) and Bandit found no confirmed vulnerability in any version; all 4 of their findings were false positives. The only High finding (V1) was found by manual review and proven by our exploit. Atheris found no balance or money-creation bugs in any version's transfer logic. Coverage stopped growing within seconds (the same as in the 30-second dry run), so it explored everything the transfer endpoint does early on.
+
+## 5. RQ3: self-fix claims vs. re-test
 
 ChatGPT's own claims are in `versions/self-fixed/docs/SECURITY_REMEDIATION.md`.
 
-| Finding given to ChatGPT | Real? | ChatGPT's verdict | Fixed? | Notes |
+| Finding given to ChatGPT | Real? | ChatGPT's verdict | Fixed? | Final run |
 |---|---|---|---|---|
-| Bandit B608 ×2 | False positive | Said these alone don't prove SQL injection; rewrote the queries anyway | Removed | Bandit now 0 |
-| Semgrep custom warning (same line) | False positive | Same as above | Removed | |
-| ZAP: missing CSP | Real | Real | ✓ | ZAP no longer reports it |
-| ZAP: missing anti-clickjacking | Real | Real | ✓ | ZAP no longer reports it |
-| ZAP: X-Content-Type-Options | Real (minor) | Real | ✓ | ZAP no longer reports it |
-| ZAP: server version leak | Real (minor) | Real, claims fixed | **Partly** | Fixed only when started with `run_local.py` (header becomes `Server: DemoBank`). With `flask run`, which is how ZAP scanned it, it still sends `Werkzeug/3.1.9 Python/…` |
+| Bandit B608 ×2 | False positive | Said these alone don't prove SQL injection; rewrote the queries anyway | Removed | Bandit 0 |
+| Semgrep custom warning (same line) | False positive | Same | Removed | Semgrep 0 |
+| ZAP: missing CSP | Real | Real | ✓ | No alert |
+| ZAP: missing anti-clickjacking | Real | Real | ✓ | No alert |
+| ZAP: X-Content-Type-Options | Real (Low) | Real | ✓ | No alert |
+| ZAP: server version leak | Real (Low) | Real, claims fixed | ✓ with `run_local.py` only | No alert when started per its README; still leaks with `flask run` |
 | ZAP: potential XSS (info) | False positive | Said it's not a confirmed XSS | n/a | Correct call |
-| Hard-coded secret key (not reported by any tool) | Real | Changed it without a tool reporting it | ✓ | Forgery exploit fails |
-| Debug on by default (not reported by any tool) | Real | Changed it without a tool reporting it | ✓ | Defaults to off |
+| Hard-coded secret key (no tool reported it) | Real | Changed it anyway | ✓ | Exploit blocked |
+| Debug on by default (no tool reported it) | Real | Changed it anyway | ✓ | Defaults to off |
+| Regressions | | | None | Shared HTTP 19/19, own tests 8/8 |
 
-To add after the final re-test: anything the fix broke (shared HTTP suite, Burp cases), and any new issues.
+## 6. Functional bugs (not security, but relevant)
 
-## 4. Burp Suite
-
-| Export | Version (how we know) | What it covers |
+| Version | Bug | Effect |
 |---|---|---|
-| `results/baseline/earlier/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline: no response has a CSP header | Wrong password rejected; transfer above balance rejected; normal transfer works |
-| `results/self-fixed/earlier/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed: all 14 responses carry the new CSP header | Login, transfer works; open redirect to `https://evil.com` blocked |
+| Paid tier | Two of its own tests are wrong: one searches for "Lunch" and then asserts "Lunch" is absent (the search box echoes it); one reads `_csrf` right after `session.clear()` | 7/9 own tests; the app itself works |
+| Security-aware (first output) | Transfer `INSERT` omitted the required `status` value | Every transfer failed. Fixed after one error-only follow-up (`versions/security-aware/PROMPT.md`); original in commit `c09cf78` |
+| Security-aware | Form idempotency key from `secrets.token_urlsafe()` can contain `-`/`_`, which the server rejects | About 1 in 3 transfers through the form fail |
+| Security-aware | Date-filter regex written as `r"\\d{4}-..."` (double-escaped inside a raw string) | Filtering transactions by date never matches |
 
-Both are proxy histories, not attack runs. Most cases in `tests/burp/test-cases.md` still need to be run on every version.
+## 7. Burp Suite
 
-## 5. Why the final runs must be redone on one setup
+Not yet run as a standardized test. The only Burp evidence so far is two earlier proxy histories:
 
-| Item | Baseline (Diana) | Self-fixed (Kanita & Hajra) | Paid tier (Noor) |
-|---|---|---|---|
-| Semgrep rules | 3 custom rules | Semgrep registry rules | not run yet |
-| pip-audit target | `requirements.txt` | whole environment (92 packages) | not run yet |
-| ZAP mode | CLI quick scan | ZAP desktop | not run yet |
-| How the app was started | `flask run` | `flask run` (not `run_local.py`) | not run yet |
+| Export | Version | What it covers |
+|---|---|---|
+| `results/baseline/earlier/burp/burp-history.xml` (30 Oct, 26 requests) | Baseline (no response has a CSP header) | Wrong password rejected; transfer above balance rejected; normal transfer works |
+| `results/self-fixed/earlier/burp/burp-history.xml` (31 Oct, 14 requests) | Self-fixed (all responses carry its CSP header) | Login and transfer work; open redirect to `https://evil.com` blocked |
 
-For the final runs, use `scripts/run_static_scans.sh`, the ZAP command in `results/README.md`, and the fuzzer in `tests/fuzzing/` on all four versions.
+## 8. Notes on the method
 
-## 6. Atheris runs so far are not valid
-
-Kanita's first fuzzer (`tests/fuzzing/first-attempt/`) never actually tested the app:
-
-- `atheris.instrument_imports()` is called on its own instead of as `with atheris.instrument_imports():`, so nothing is instrumented. libFuzzer warns "no interesting inputs were found… Is the code instrumented for coverage?" and the corpus stays at 1 byte.
-- `WTF_CSRF_ENABLED = False` does nothing because none of the apps use Flask-WTF. Every POST still fails the app's CSRF check before reaching any logic.
-- The transfer request isn't logged in and uses `recipient_account`, but the field is `recipient`.
-- `ValueError`, `KeyError` and `TypeError` are swallowed, and no property is checked.
-
-Re-run with `tests/fuzzing/fuzz_transfer.py` on every version, using the same time limit. In the report this can be a short "lesson learned": a fuzzer that can't get past CSRF and login tests nothing.
-
-## 7. Security-aware version: first checks (19 Nov 2026)
-
-Generated by Hajra with free GPT-5.6 from the security-aware prompt (verified identical to `versions/security-aware/PROMPT.md`). None of its files match the baseline's, so it was built from scratch.
-
-**Transfers do not work at all.** This is a functional bug, not something we caused:
-
-- The `transactions` table declares `status TEXT NOT NULL CHECK(status IN ('completed'))`, but the transfer code inserts a row without `status`. Every transfer raises `IntegrityError` and is rolled back ("We could not complete the transfer. No funds were moved."). 0 of 40 test transfers through the real form succeeded.
-- Separately, the form's `idempotency_key` is made with `secrets.token_urlsafe(18)`, which can contain `-` and `_`, but the server only accepts `[A-Za-z0-9]{8,40}`. About 6 in 10 form submissions would be rejected even if the insert worked.
-- Its own tests show this: 2/3 pass, and `test_transfer_moves_virtual_funds` fails (balance unchanged). The tests also only run if `DEMOBANK_SECRET_KEY` is set.
-
-For RQ2 this is a finding in itself: with the security requirements added, the free model's first output broke the core feature.
-
-**After one error-only follow-up (19 Nov):** ChatGPT's fix for the missing `status` value was applied exactly as given (see `versions/security-aware/PROMPT.md`). Transfers now work: 27 of 40 test transfers succeeded. The other 13 were rejected by the idempotency-key bug above, which was not reported back, so it is left as is. Its own tests now pass 3/3.
-
-**Security observations so far:**
-
-| Check | Result |
-|---|---|
-| Secret key | Refuses to start without `DEMOBANK_SECRET_KEY`. Falls back to a fixed `"test-only-secret-not-for-deployment"` only when `TESTING` is on. Session-forgery exploit fails. |
-| Debug mode | Refuses to start if debug is on |
-| Security headers | CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options`, `Referrer-Policy` all present |
-| Server version | **Still leaks** `Werkzeug/3.1.9 Python/…`, although the prompt said "Do not reveal server or framework versions" |
-| Dependencies | Pinned versions in `requirements.txt` (Flask 3.1.1, Werkzeug 3.1.3) |
-| Login | Field names `_csrf`, `username`; demo password `DemoPass12345!` |
+- **Earlier results** used different settings per version (Semgrep rules, pip-audit target, ZAP mode, start method), so they are kept for reference only. See the testing plan.
+- **Kanita's first Atheris attempt** (`tests/fuzzing/first-attempt/`) never reached the app: no instrumentation (missing `with`), every request blocked at CSRF, the transfer test not logged in and using the wrong field name. It's a lesson learned, not a result.
+- **Semgrep "errors"** (8–10 per version) are `PartialParsing` warnings on Jinja HTML templates. Python code was scanned fully, but the templates, where XSS would sit, were only partly checked. State this as a limitation.
+- **ZAP** scanned without logging in, so only public pages and redirects were covered.
+- **Security-aware's `atheris.log`** is ~34,600 lines because the app logs every rejected transfer (`security_event=transfer_failed`). No errors.
