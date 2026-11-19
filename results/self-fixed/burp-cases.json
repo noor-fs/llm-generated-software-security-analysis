@@ -1,0 +1,74 @@
+[
+  {
+    "n": 1,
+    "case": "Access without login",
+    "verdict": "Blocked",
+    "detail": "all private pages redirect or refuse: /dashboard 302, /account 302, /transactions 302, /transfer 302, /profile 302, /settings 302, /notifications 302, /change-password 302"
+  },
+  {
+    "n": 2,
+    "case": "CSRF token removed / wrong",
+    "verdict": "Blocked",
+    "detail": "no token -> HTTP 400, wrong token -> HTTP 400; money moved: none"
+  },
+  {
+    "n": 3,
+    "case": "SQL injection (login, transaction filters/search)",
+    "verdict": "Blocked",
+    "detail": "login with \"' OR '1'='1' --\" -> rejected; filters/search -> HTTP 200"
+  },
+  {
+    "n": 4,
+    "case": "Stored XSS (description, profile name)",
+    "verdict": "Blocked",
+    "detail": "payloads stored but shown escaped (profile update HTTP 302)"
+  },
+  {
+    "n": 5,
+    "case": "Negative / odd amounts",
+    "verdict": "Blocked",
+    "detail": "-500: rejected; 0: rejected; 0.001: rejected; 1e3: moved {'DB802FF5E757': -100000, 'DB1F3B609996': 100000}; NaN: rejected; Infinity: rejected; 99999999: rejected; 1,000: rejected"
+  },
+  {
+    "n": 6,
+    "case": "Transfer from / view another user's account (IDOR)",
+    "verdict": "Blocked",
+    "detail": "tampered sender fields -> money moved: none; victim data via URL params: no"
+  },
+  {
+    "n": 7,
+    "case": "Replay (same idempotency key x3)",
+    "verdict": "Blocked",
+    "detail": "3 submissions with one key -> QAR 1 left the sender (1 expected if only the first counted)"
+  },
+  {
+    "n": 8,
+    "case": "Session after password change",
+    "verdict": "Vulnerable",
+    "detail": "other browser's session after the change -> /dashboard HTTP 200"
+  },
+  {
+    "n": 9,
+    "case": "Session forgery (exploit script)",
+    "verdict": "Blocked",
+    "detail": "[-] Not logged in (HTTP 302). Is the app using a different SECRET_KEY?"
+  },
+  {
+    "n": 10,
+    "case": "Open redirect after login",
+    "verdict": "Blocked",
+    "detail": "stayed on the site: https://evil.example/ -> /dashboard; //evil.example/ -> /dashboard; /\\evil.example/ -> /%5Cevil.example/"
+  },
+  {
+    "n": 11,
+    "case": "Brute force (30 wrong passwords)",
+    "verdict": "Vulnerable (no rate limit)",
+    "detail": "wrong-password responses: [200]; limit message seen: False; correct password afterwards: accepted"
+  },
+  {
+    "n": 12,
+    "case": "Security headers / cookie flags (logged in)",
+    "verdict": "Blocked",
+    "detail": "missing: none; Server: DemoBank; Set-Cookie flags: Expires=Thu, 19 Nov 2026 20:41:29 GMT; HttpOnly; Path=/; SameSite=Lax"
+  }
+]
