@@ -3,8 +3,8 @@
 **Question it answers (RQ2):** using the free model, does a prompt with specific security requirements produce a more secure app than the baseline prompt?
 
 **Model:** ChatGPT free, GPT-5.6 (Luna), the same model as the baseline
-**Made by:** Khadija Alobeid
-**Status:** to be generated
+**Made by:** _name_
+**Status:** generated 19 Nov 2026; code to be added
 
 ## Rules
 
@@ -13,7 +13,7 @@
 - The prompt is the baseline prompt, unchanged, plus section 7. Section 7 is based on the OWASP Top 10:2025, not on our baseline test results.
 - Put the generated code in this folder exactly as produced, and add the chat link below.
 
-**Chat:** _link_
+**Chat:** https://chatgpt.com/share/6afc0d4c-3bb0-83eb-b9a4-81a1e3227eb6 (prompt sent verified identical to the one below)
 
 An earlier version made by giving ChatGPT the baseline's code was dropped, because that measures fixing, not prompting (overlaps with RQ3). It remains in the git history (commit 27bcd50).
 
