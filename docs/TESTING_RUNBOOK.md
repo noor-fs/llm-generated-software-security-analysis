@@ -144,3 +144,11 @@ A dry run without Burp (`--no-proxy`) on a cloud Linux machine gave:
 | 12 | Security headers / cookies | Vulnerable | Vulnerable | Blocked | Blocked |
 
 If "Burp is not listening", Burp isn't open or uses another port (`--proxy http://127.0.0.1:PORT`). If requests hang, Intercept is on.
+
+**Burp on Windows, script in WSL (Ubuntu):** inside WSL, `127.0.0.1:8080` is Ubuntu itself, not Windows, so the script won't find Burp there. Either:
+- in Burp, **Proxy → Proxy settings → edit the listener → Bind to address: All interfaces**, then run
+  ```bash
+  python3 tests/burp/run_burp_cases.py --proxy http://$(ip route show default | awk '{print $3}'):8080
+  ```
+  (Windows may ask to allow Java/Burp through the firewall: allow it), or
+- install the Linux version of Burp inside Ubuntu and run it there (needs Windows 11's built-in Linux GUI support).
