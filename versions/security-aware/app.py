@@ -207,8 +207,24 @@ def create_app(test_config=None):
                     raise ValueError("insufficient funds")
                 db.execute("UPDATE accounts SET balance_cents=balance_cents+? WHERE id=?", (cents, target["id"]))
                 reference = "TX" + secrets.token_hex(8).upper()
-                db.execute("INSERT INTO transactions(reference,sender_account_id,recipient_account_id,amount_cents,description) VALUES(?,?,?,?,?)",
-                           (reference, sender["id"], target["id"], cents, description))
+                db.execute("""
+                    INSERT INTO transactions(
+                        reference,
+                        sender_account_id,
+                        recipient_account_id,
+                        amount_cents,
+                        description,
+                        status
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    reference,
+                    sender["id"],
+                    target["id"],
+                    cents,
+                    description,
+                    "completed"
+                ))
                 txid = db.execute("SELECT last_insert_rowid()").fetchone()[0]
                 db.execute("INSERT INTO idempotency_keys(user_id,idem_key,transaction_id) VALUES(?,?,?)",
                            (g.user["id"], idem, txid))

@@ -17,6 +17,19 @@
 
 An earlier version made by giving ChatGPT the baseline's code was dropped, because that measures fixing, not prompting (overlaps with RQ3). It remains in the git history (commit 27bcd50).
 
+## Follow-up (one error-only message, same chat)
+
+The first output's transfers always failed. Following the rule "if the app doesn't work, paste the error once, with no security hints", Hajra sent:
+
+````text
+When I try to make a transfer it says "We could not complete the transfer. No funds were moved." and the terminal shows:
+sqlite3.IntegrityError: NOT NULL constraint failed: transactions.status
+````
+
+ChatGPT replied with a replacement for the `INSERT INTO transactions` statement in the `/transfer` route, adding the missing `status` value (`"completed"`). Its code was pasted in exactly as given, and nothing else was changed. The original first output is in git commit c09cf78.
+
+After the fix, transfers work, but about 1 in 3 still fails because of a second bug that wasn't reported back: the form's `idempotency_key` comes from `secrets.token_urlsafe()` and can contain `-` or `_`, which the server rejects. Following the one-follow-up rule, this was left as is.
+
 ## Exact prompt
 
 ````text
