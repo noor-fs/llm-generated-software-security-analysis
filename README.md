@@ -4,8 +4,6 @@ A ChatGPT-built banking web app (DemoBank) generated four ways and tested with t
 
 CMPS 380 Cybersecurity Fundamentals, Qatar University, Fall 2026.
 
-> **Warning:** this repository contains AI-generated code with known vulnerabilities and a working exploit. Run it only on your own machine or VM, with the fake demo data. Never deploy it.
-
 ## Research questions
 
 Full scope and definitions: [`docs/SCOPE.md`](docs/SCOPE.md).
